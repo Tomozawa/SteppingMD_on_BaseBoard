@@ -49,14 +49,28 @@ extern "C" {
 
 /* USER CODE END EM */
 
+void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
+
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
-
+void wrapper_cpp(void);
 /* USER CODE BEGIN EFP */
 
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define DIRE_Pin GPIO_PIN_10
+#define DIRE_GPIO_Port GPIOB
+#define ENAC_Pin GPIO_PIN_13
+#define ENAC_GPIO_Port GPIOB
+#define DIRC_Pin GPIO_PIN_14
+#define DIRC_GPIO_Port GPIOB
+#define ENAA_Pin GPIO_PIN_11
+#define ENAA_GPIO_Port GPIOA
+#define DIRA_Pin GPIO_PIN_12
+#define DIRA_GPIO_Port GPIOA
+#define ENAE_Pin GPIO_PIN_15
+#define ENAE_GPIO_Port GPIOA
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
