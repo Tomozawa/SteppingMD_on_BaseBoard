@@ -3,6 +3,7 @@
 #include<main.h>
 #include<Parameters.hpp>
 #include<list>
+#include<stdexcept>
 
 //各モーターにつき1つのインスタンスが与えられるため、クラスの実装としては単一のモーターを動かすことを考える
 
@@ -27,7 +28,7 @@ namespace stepping_md{
 				}
 			}
 
-			virtual void emergency_callback(void){}
+			virtual void emergency_callback(void){throw std::logic_error("emergency_callback is not implemented");}
 	};
 
 	//以下のクラスが要実装
@@ -50,6 +51,6 @@ namespace stepping_md{
 			void update(void);
 
 			//Emergencyスイッチが扱われたとき呼ばれるコールバック関数
-			void emergency_callback(void);
+			void emergency_callback(void) override;
 	};
 }

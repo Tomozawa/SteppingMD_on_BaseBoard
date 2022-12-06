@@ -2,6 +2,7 @@
 
 #include<main.h>
 #include<list>
+#include<stdexcept>
 
 //各モーターにつき1つのインスタンスが与えられるため、クラスの実装としては単一のモーターに対応するパラメーターを考える
 
@@ -45,7 +46,7 @@ namespace stepping_md{
 				}
 			}
 
-			virtual void emergency_callback(void){}
+			virtual void emergency_callback(void){throw std::logic_error("emergency_callback is not implemented");}
 	};
 
 	//パラメーターの書き込み・読み込みを行うクラス
@@ -70,6 +71,6 @@ namespace stepping_md{
 			void set_BID(const uint32_t bid);
 
 			//Emergencyボタンが押されたときに呼ばれるコールバック関数
-			void emergency_callback(void);
+			void emergency_callback(void) override;
 	};
 }
