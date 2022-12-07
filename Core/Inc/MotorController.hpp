@@ -41,10 +41,18 @@ namespace stepping_md{
 					const GPIO_PIN dir_pin, //DIRのピン番号
 					const GPIO_Port dir_port, //DIRのポート
 					const TIM_HandleTypeDef* pwm_tim //PWMを出力するタイマ(CH1から出力される)
-			){}
+			);
+			explicit MotorController(
+					const GPIO_PIN ena_pin, //ENAのピン番号
+					const GPIO_Port ena_port, //ENAのポート
+					const GPIO_PIN dir_pin, //DIRのピン番号
+					const GPIO_Port dir_port, //DIRのポート
+					const TIM_HandleTypeDef* pwm_tim, //PWMを出力するタイマ(CH1から出力される)
+					const Parameters& params //パラメータを保持する保管庫的なクラス
+			);
 
 			//パラメータを保持する保管庫的なクラスを登録する関数
-			void set_register(Parameters& params);
+			void set_register(const Parameters& params);
 
 			//パラメーターの値を読み込み、それに従ってモーターに出力する関数
 			//定期的に呼ばれる
