@@ -58,7 +58,7 @@ namespace stepping_md{
 
 			//パラメータを取得する関数
 			//第1引数は結果を格納する構造体オブジェクトへのポインタ
-			void get_motor_params(MotorParam* param);
+			const void get_motor_params(MotorParam* param);
 
 			//パラメータを設定する関数
 			//第1引数は設定内容が書かれた構造体オブジェクト

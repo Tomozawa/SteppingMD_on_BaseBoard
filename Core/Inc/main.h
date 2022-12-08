@@ -53,7 +53,7 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
-void wrapper_cpp(void);
+
 /* USER CODE BEGIN EFP */
 
 /* USER CODE END EFP */
@@ -72,7 +72,7 @@ void wrapper_cpp(void);
 #define ENAE_Pin GPIO_PIN_15
 #define ENAE_GPIO_Port GPIOA
 /* USER CODE BEGIN Private defines */
-
+void wrapper_cpp();
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

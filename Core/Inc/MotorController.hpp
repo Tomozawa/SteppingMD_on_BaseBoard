@@ -33,22 +33,38 @@ namespace stepping_md{
 
 	//以下のクラスが要実装
 	class MotorController : public MotorController_Base{
+		private:
+			const GPIO_PIN ena_pin;
+			const GPIO_Port ena_port;
+			const GPIO_PIN dir_pin;
+			const GPIO_Port dir_port;
+			const float error_threshold;
+			TIM_HandleTypeDef* pwm_tim;
+			Parameters& params;
+
+			uint32_t start_time = 0;
+			int direction = 1;//dir_pinがHIGHのとき1,LOWのとき-1
+			float speed = 0;//rpm
+			float positon = 0;
+
+			void update_position();
+			void set_direction(int _direction);
+			void enable();
+			void disable();
+			void start();
+			void stop();
+			void move_to_target(float target);
+
 		public:
 			//コンストラクタ(引数やオーバーロードは自由に決めてよい)
 			explicit MotorController(
-					const GPIO_PIN ena_pin, //ENAのピン番号
-					const GPIO_Port ena_port, //ENAのポート
-					const GPIO_PIN dir_pin, //DIRのピン番号
-					const GPIO_Port dir_port, //DIRのポート
-					const TIM_HandleTypeDef* pwm_tim //PWMを出力するタイマ(CH1から出力される)
-			);
-			explicit MotorController(
-					const GPIO_PIN ena_pin, //ENAのピン番号
-					const GPIO_Port ena_port, //ENAのポート
-					const GPIO_PIN dir_pin, //DIRのピン番号
-					const GPIO_Port dir_port, //DIRのポート
-					const TIM_HandleTypeDef* pwm_tim, //PWMを出力するタイマ(CH1から出力される)
-					const Parameters& params //パラメータを保持する保管庫的なクラス
+				const GPIO_PIN ena_pin,//ENAのピン番号
+				const GPIO_Port ena_port,//ENAのポート
+				const GPIO_PIN dir_pin,//DIRのピン番号
+				const GPIO_Port dir_port,//DIRのポート
+				const float error_threshold,//目標値と現在値の差がこの値以下になったらPWMを止める。
+				TIM_HandleTypeDef* pwm_tim,//PWMを出力するタイマ(CH1から出力される)
+				Parameters& params//パラメータを保持する保管庫的なクラス
 			);
 
 			//パラメータを保持する保管庫的なクラスを登録する関数
@@ -58,6 +74,9 @@ namespace stepping_md{
 			//定期的に呼ばれる
 			void update(void);
 
+			//モーターの回転速度を設定する関数
+			//引数はrpm
+			void set_speed(float _speed);
 			//Emergencyスイッチが扱われたとき呼ばれるコールバック関数
 			void emergency_callback(void) override;
 	};
