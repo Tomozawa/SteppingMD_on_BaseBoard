@@ -1,6 +1,6 @@
 //ステッピングモーターコントロール用クラス
 #include <MotorController.hpp>
-#include <math.h>
+#include <numbers>
 
 namespace stepping_md
 {
@@ -8,7 +8,10 @@ namespace stepping_md
         //現在の位置を更新する
         //開始時間から計算する
         int time_diff = HAL_GetTick() - start_time;//ms
-        positon +=direction * time_diff * speed / 60000;
+        start_time = HAL_GetTick();
+        constexpr float rpm_to_rad_per_ms = 2 * std::numbers::pi / 60000;
+        positon +=direction * time_diff * current_speed * rpm_to_rad_per_ms;
+        
     }
 
     //方向を設定する。引数が正のとき正転、負のとき逆転
@@ -27,26 +30,28 @@ namespace stepping_md
 
     void MotorController::enable(){
         update_position();
+        stop();
         HAL_GPIO_WritePin(ena_port, ena_pin, GPIO_PIN_SET);
     }
     void MotorController::disable(){
         update_position();
+        stop();
         HAL_GPIO_WritePin(ena_port, ena_pin, GPIO_PIN_RESET);
     }
     void MotorController::start(){
         update_position();
         HAL_TIM_PWM_Start(pwm_tim, TIM_CHANNEL_1);
+        current_speed = speed;
     }
     void MotorController::stop(){
         update_position();
         HAL_TIM_PWM_Stop(pwm_tim, TIM_CHANNEL_1);
+        current_speed = 0;
     }
     void MotorController::move_to_target(float target){
         //方向を決める
         set_direction(target - positon);
         start();
-
-
     }
 
 
@@ -60,12 +65,11 @@ namespace stepping_md
         Parameters& params
     ) : ena_pin(ena_pin), ena_port(ena_port), dir_pin(dir_pin), dir_port(dir_port),error_threshold(error_threshold), pwm_tim(pwm_tim), params(params){
         //安全のために初期化時にはモーターを停止させる。ただし、ENAはHighにしておく
-        stop();
+        
         enable();
 
         //適当な値を設定しておく
         pwm_tim->Instance->CCR1 =100;
-
     }
 
     void MotorController::set_speed(float _speed){
@@ -78,18 +82,11 @@ namespace stepping_md
 
         //pwmの周期を設定する
         pwm_tim->Instance->ARR = (uint32_t)(HAL_RCC_GetPCLK1Freq()/speed/motor_param.ppr);
-
     }
 
-
-    inline void MotorController::emergency_callback(){
-        stop();
-        disable();
-    }
     void MotorController::update(){
         //現在の位置を更新する
         update_position();
-
 
         stepping_md::MotorParam motor_param;
         params.get_motor_params(&motor_param);
