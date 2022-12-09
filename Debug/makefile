@@ -78,8 +78,8 @@ all: main-build
 main-build: SteppingMD_on_BaseBoard.elf secondary-outputs
 
 # Tool invocations
-SteppingMD_on_BaseBoard.elf SteppingMD_on_BaseBoard.map: $(OBJS) $(USER_OBJS) C:\Users\taman\repo\SteppingMD_on_BaseBoard\STM32F103C6TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-g++ -o "SteppingMD_on_BaseBoard.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\taman\repo\SteppingMD_on_BaseBoard\STM32F103C6TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="SteppingMD_on_BaseBoard.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
+SteppingMD_on_BaseBoard.elf SteppingMD_on_BaseBoard.map: $(OBJS) $(USER_OBJS) C:\Users\yudun\git\SteppingMD_on_BaseBoard\STM32F103C6TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-g++ -o "SteppingMD_on_BaseBoard.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"C:\Users\yudun\git\SteppingMD_on_BaseBoard\STM32F103C6TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="SteppingMD_on_BaseBoard.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

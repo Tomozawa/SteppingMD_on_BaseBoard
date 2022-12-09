@@ -46,7 +46,7 @@ extern "C" {
 
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
-
+#define MotorControllerTest
 /* USER CODE END EM */
 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
@@ -55,7 +55,7 @@ void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
-
+void wrapper_cpp(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
@@ -72,7 +72,7 @@ void Error_Handler(void);
 #define ENAE_Pin GPIO_PIN_15
 #define ENAE_GPIO_Port GPIOA
 /* USER CODE BEGIN Private defines */
-void wrapper_cpp();
+
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

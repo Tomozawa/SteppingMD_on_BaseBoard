@@ -7,7 +7,14 @@ namespace stepping_md
     void MotorController::update_position(){
         //現在の位置を更新する
         //開始時間から計算する
+
+    	//バグの可能性(start_timeが常に0)
+
         int time_diff = HAL_GetTick() - start_time;//ms
+
+        //バグの可能性
+        //speedは1/60秒速(?)
+        //たぶん分速にしたい
         positon +=direction * time_diff * speed / 60000;
     }
 

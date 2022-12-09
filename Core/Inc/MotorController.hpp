@@ -28,7 +28,14 @@ namespace stepping_md{
 				}
 			}
 
+			inline static void trigger_update(void){
+				for(MotorController_Base controller : instances){
+					controller.update();
+				}
+			}
+
 			virtual void emergency_callback(void){throw std::logic_error("emergency_callback is not implemented");}
+			virtual void update(void){throw std::logic_error("update is not implemented");}
 	};
 
 	//以下のクラスが要実装
@@ -72,7 +79,7 @@ namespace stepping_md{
 
 			//パラメーターの値を読み込み、それに従ってモーターに出力する関数
 			//定期的に呼ばれる
-			void update(void);
+			void update(void) override;
 
 			//モーターの回転速度を設定する関数
 			//引数はrpm
