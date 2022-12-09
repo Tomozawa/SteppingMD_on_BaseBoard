@@ -7,22 +7,10 @@ namespace stepping_md
     void MotorController::update_position(){
         //現在の位置を更新する
         //開始時間から計算する
-
-    	//バグの可能性(start_timeが常に0)
-
         int time_diff = HAL_GetTick() - start_time;//ms
-<<<<<<< HEAD
-
-        //バグの可能性
-        //speedは1/60秒速(?)
-        //たぶん分速にしたい
-        positon +=direction * time_diff * speed / 60000;
-=======
         start_time = HAL_GetTick();
         constexpr float rpm_to_rad_per_ms = 2 * std::numbers::pi / 60000;
         positon +=direction * time_diff * current_speed * rpm_to_rad_per_ms;
-        
->>>>>>> IndigoCarmin-MoterController
     }
 
     //方向を設定する。引数が正のとき正転、負のとき逆転

@@ -80,11 +80,8 @@ namespace stepping_md{
 
 			//パラメーターの値を読み込み、それに従ってモーターに出力する関数
 			//定期的に呼ばれる
-<<<<<<< HEAD
+
 			void update(void) override;
-=======
-			void update();
->>>>>>> IndigoCarmin-MoterController
 
 			//モーターの回転速度を設定する関数
 			//引数はrpm
