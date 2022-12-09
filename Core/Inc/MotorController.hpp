@@ -49,10 +49,11 @@ namespace stepping_md{
 			TIM_HandleTypeDef* pwm_tim;
 			Parameters& params;
 
-			uint32_t start_time = 0;
+			uint32_t start_time = 0;//ms 速度変化があったときのタイムスタンプ
 			int direction = 1;//dir_pinがHIGHのとき1,LOWのとき-1
-			float speed = 0;//rpm
-			float positon = 0;
+			float speed = 0;//rpm 設定値
+			float current_speed = 0;//rpm
+			float positon = 0;//radian
 
 			void update_position();
 			void set_direction(int _direction);
@@ -69,7 +70,7 @@ namespace stepping_md{
 				const GPIO_Port ena_port,//ENAのポート
 				const GPIO_PIN dir_pin,//DIRのピン番号
 				const GPIO_Port dir_port,//DIRのポート
-				const float error_threshold,//目標値と現在値の差がこの値以下になったらPWMを止める。
+				const float error_threshold,//目標値と現在値の差がこの値以下になったらPWMを止める。単位はrad
 				TIM_HandleTypeDef* pwm_tim,//PWMを出力するタイマ(CH1から出力される)
 				Parameters& params//パラメータを保持する保管庫的なクラス
 			);
@@ -79,12 +80,19 @@ namespace stepping_md{
 
 			//パラメーターの値を読み込み、それに従ってモーターに出力する関数
 			//定期的に呼ばれる
+<<<<<<< HEAD
 			void update(void) override;
+=======
+			void update();
+>>>>>>> IndigoCarmin-MoterController
 
 			//モーターの回転速度を設定する関数
 			//引数はrpm
-			void set_speed(float _speed);
+			void set_speed(float speed);
 			//Emergencyスイッチが扱われたとき呼ばれるコールバック関数
-			void emergency_callback(void) override;
+		    void emergency_callback() override{
+		        stop();
+		        disable();
+		    }
 	};
 }

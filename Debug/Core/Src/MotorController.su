@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ../Core/Inc/MotorController.hpp:38:17:virtual void stepping_md::MotorController_Base::update()	8	static
 ../Core/Inc/MotorController.hpp:37:17:virtual void stepping_md::MotorController_Base::emergency_callback()	8	static
 ../Core/Src/MotorController.cpp:7:10:void stepping_md::MotorController::update_position()	8	static
@@ -12,3 +13,18 @@
 ../Core/Src/MotorController.cpp:53:5:stepping_md::MotorController::MotorController(GPIO_PIN, GPIO_Port, GPIO_PIN, GPIO_Port, float, TIM_HandleTypeDef*, stepping_md::Parameters&)	32	static
 ../Core/Src/MotorController.cpp:71:10:void stepping_md::MotorController::set_speed(float)	32	static
 ../Core/Src/MotorController.cpp:107:10:void stepping_md::MotorController::set_register(const stepping_md::Parameters&)	0	static
+=======
+../Core/Inc/MotorController.hpp:31:17:virtual void stepping_md::MotorController_Base::emergency_callback()	8	static
+../Core/Src/MotorController.cpp:7:10:void stepping_md::MotorController::update_position()	16	static
+../Core/Src/MotorController.cpp:18:10:void stepping_md::MotorController::set_direction(int)	16	static
+../Core/Src/MotorController.cpp:31:10:void stepping_md::MotorController::enable()	8	static
+../Core/Src/MotorController.cpp:35:10:void stepping_md::MotorController::disable()	8	static
+../Core/Src/MotorController.cpp:39:10:void stepping_md::MotorController::start()	8	static
+../Core/Src/MotorController.cpp:43:10:void stepping_md::MotorController::stop()	8	static
+../Core/Inc/MotorController.hpp:81:12:virtual void stepping_md::MotorController::emergency_callback()	8	static
+../Core/Src/MotorController.cpp:47:10:void stepping_md::MotorController::move_to_target(float)	8	static
+../Core/Src/MotorController.cpp:56:5:stepping_md::MotorController::MotorController(GPIO_PIN, GPIO_Port, GPIO_PIN, GPIO_Port, float, TIM_HandleTypeDef*, stepping_md::Parameters&)	32	static
+../Core/Src/MotorController.cpp:74:10:void stepping_md::MotorController::set_speed(float)	32	static
+../Core/Src/MotorController.cpp:90:10:void stepping_md::MotorController::update()	32	static
+../Core/Src/MotorController.cpp:108:10:void stepping_md::MotorController::set_register(const stepping_md::Parameters&)	0	static
+>>>>>>> IndigoCarmin-MoterController
