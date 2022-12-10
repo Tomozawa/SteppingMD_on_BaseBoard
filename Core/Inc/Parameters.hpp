@@ -12,7 +12,7 @@ namespace stepping_md{
 		//起動直後やEmergencyスイッチが押されたときのモードです。
 		//モーターは一切動作しません
 		//ステッピングMDのENA信号はLOWになっています
-		DEFAULF,
+		DEFAULT,
 
 		//位置制御モード
 		POS
