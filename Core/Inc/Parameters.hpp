@@ -52,13 +52,17 @@ namespace stepping_md{
 	//パラメーターの書き込み・読み込みを行うクラス
 	//要実装
 	class Parameters : public Parameters_Base{
+		private:
+		        uint32_t BID;
+			//Parameters上で扱うMD_MODEとpprとtargetのメンバ変数
+			MotorParam SMParam;
 		public:
 			//コンストラクタ(引数やオーバーロードは自由に決めてよい)
 			explicit Parameters(){}
 
 			//パラメータを取得する関数
 			//第1引数は結果を格納する構造体オブジェクトへのポインタ
-			const void get_motor_params(MotorParam* param);
+			MotorParam get_motor_param();
 
 			//パラメータを設定する関数
 			//第1引数は設定内容が書かれた構造体オブジェクト
@@ -71,6 +75,10 @@ namespace stepping_md{
 			void set_BID(const uint32_t bid);
 
 			//Emergencyボタンが押されたときに呼ばれるコールバック関数
-			void emergency_callback(void) override;
+			//emergency_callbackはパラメーターのうちmodeをMD_MODE::DEFAULTにする関数
+			void emergency_callback(void) override
+			{
+				SMParam.mode = MD_MODE::DEFAULT;
+			}
 	};
 }
