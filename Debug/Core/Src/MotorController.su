@@ -8,7 +8,7 @@
 ../Core/Src/MotorController.cpp:35:10:void stepping_md::MotorController::disable()	8	static
 ../Core/Inc/MotorController.hpp:90:12:virtual void stepping_md::MotorController::emergency_callback()	8	static
 ../Core/Src/MotorController.cpp:50:10:void stepping_md::MotorController::move_to_target(float)	8	static
-../Core/Src/MotorController.cpp:86:10:virtual void stepping_md::MotorController::update()	32	static
+../Core/Src/MotorController.cpp:85:10:virtual void stepping_md::MotorController::update()	32	static
 ../Core/Src/MotorController.cpp:57:5:stepping_md::MotorController::MotorController(GPIO_PIN, GPIO_Port, GPIO_PIN, GPIO_Port, float, TIM_HandleTypeDef*, stepping_md::Parameters&)	32	static
 ../Core/Src/MotorController.cpp:74:10:void stepping_md::MotorController::set_speed(float)	32	static
-../Core/Src/MotorController.cpp:103:10:void stepping_md::MotorController::set_register(const stepping_md::Parameters&)	0	static
+../Core/Src/MotorController.cpp:101:10:void stepping_md::MotorController::set_register(const stepping_md::Parameters&)	0	static

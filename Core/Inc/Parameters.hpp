@@ -57,8 +57,7 @@ namespace stepping_md{
 			explicit Parameters(){}
 
 			//パラメータを取得する関数
-			//第1引数は結果を格納する構造体オブジェクトへのポインタ
-			const void get_motor_params(MotorParam* param);
+			const MotorParam get_motor_params();
 
 			//パラメータを設定する関数
 			//第1引数は設定内容が書かれた構造体オブジェクト

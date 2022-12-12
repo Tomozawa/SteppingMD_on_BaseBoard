@@ -16,71 +16,28 @@ typedef std::function<int(std::string, uint32_t)> CANCALLBACK_STR;
 
 namespace stepping_md {
 	template<typename T>
-	class CanController;
-
-	template<>
-	class CanController<uint8_t>{
+	class CanController{
+		private:
+			CRSLib::Can::RM0008::CanManager& can_manager;
+			std::function<int(T, uint32_t)> callback;
+			Parameters& params;
 		public:
 			//コンストラクタ(引数やオーバーロードは自由に決めてよい)
 			//can_managerは初期化済み
-			explicit CanController(CRSLib::Can::RM0008::CanManager& can_manager){}
+			explicit CanController(CRSLib::Can::RM0008::CanManager& can_manager, Parameters& params);
 
 			//Canからの受信があったときに呼ばれる関数を登録する関数
-			void set_callback(const CANCALLBACK_INT callback);
+			void set_callback(const std::function<int(T, uint32_t)> callback);
 
 			//パラメータを保持する保管庫的なクラスを登録する関数
 			void set_register(Parameters& params);
 
 			//Canにデータを送出する関数
-			void send(const int value);
+			void send(const T value);
 
 			//Canの受信をポーリングして調べる関数(定期的に呼ばれるので内部でのループは不要)
 			//パラメーター保管庫からBIDを読み取ってフィルタリングするIDを設定する関数
 			//Canの送信をまとめて行ってもよい
 			void update(void);
 	};
-
-	template<>
-		class CanController<float>{
-			public:
-				//コンストラクタ(引数やオーバーロードは自由に決めてよい)
-				//can_managerは初期化済み
-				explicit CanController(CRSLib::Can::RM0008::CanManager& can_manager){}
-
-				//Canからの受信があったときに呼ばれる関数を登録する関数
-				void set_callback(const CANCALLBACK_FLOAT callback);
-
-				//パラメータを保持する保管庫的なクラスを登録する関数
-				void set_register(Parameters& params);
-
-				//Canにデータを送出する関数
-				void send(const float value);
-
-				//Canの受信をポーリングして調べる関数(定期的に呼ばれるので内部でのループは不要)
-				//パラメーター保管庫からBIDを読み取ってフィルタリングするIDを設定する関数
-				//Canの送信をまとめて行ってもよい
-				void update(void);
-		};
-
-	template<>
-		class CanController<std::string>{
-			public:
-				//コンストラクタ(引数やオーバーロードは自由に決めてよい)
-				//can_managerは初期化済み
-				explicit CanController(CRSLib::Can::RM0008::CanManager& can_manager){}
-
-				//Canからの受信があったときに呼ばれる関数を登録する関数
-				void set_callback(const CANCALLBACK_STR callback);
-
-				//パラメータを保持する保管庫的なクラスを登録する関数
-				void set_register(Parameters& params);
-
-				//Canにデータを送出する関数
-				void send(const std::string value);
-
-				//Canの受信をポーリングして調べる関数(定期的に呼ばれるので内部でのループは不要)
-				//パラメーター保管庫からBIDを読み取ってフィルタリングするIDを設定する関数
-				//Canの送信をまとめて行ってもよい
-				void update(void);
-		};
 }
