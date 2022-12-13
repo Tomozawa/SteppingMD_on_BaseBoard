@@ -1,0 +1,4 @@
+../Core/Src/led_process.cpp:9:7:void stepping_md::led_process()	16	static
+../Core/Src/led_process.cpp:29:7:void stepping_md::blink_can_led()	8	static
+../Core/Src/led_process.cpp:35:7:void stepping_md::on_yellow_led()	0	static
+../Core/Src/led_process.cpp:39:7:void stepping_md::off_yellow_led()	0	static

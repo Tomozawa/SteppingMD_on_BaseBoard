@@ -10,6 +10,7 @@
 ### 機材
 - [ステッピングモータードライバ](https://www.amazon.co.jp/Quimat-TB6600-%E3%82%B9%E3%83%86%E3%83%83%E3%83%94%E3%83%B3%E3%82%B0-%E3%82%B3%E3%83%B3%E3%83%88%E3%83%AD%E3%83%BC%E3%83%A9%E3%83%BC-9V-40V/dp/B06XSBB45M)
 - [BaseBoard ver4.0](https://github.com/tk20e/Base-Board-ver4.0-hw.git)
+- [BaseBoardアクチュエータ駆動シールド(準備中)](about:blank)
 - ステッピングモータードライバ用ハーネス
 
 ### 接続
@@ -28,6 +29,9 @@
 | MotorE | DIN_E | DIN_F | ENC_E |
 
 上記の接続を行うケーブルを「ステッピングモータードライバ用ハーネス」と呼びます。
+
+### BaseBoardアクチュエータ駆動用基板
+BaseBoardアクチュエータ駆動用基板のEMOのランドとBluePillのPB12をエナメル線などで接続してください。
 
 ## ソフトウェア要件
 ### CAN

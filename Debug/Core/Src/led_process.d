@@ -1,5 +1,5 @@
-Core/Src/CanController.o: ../Core/Src/CanController.cpp \
- ../Core/Inc/CanController.hpp ../Core/Inc/main.h \
+Core/Src/led_process.o: ../Core/Src/led_process.cpp \
+ ../Core/Inc/led_process.hpp ../Core/Inc/main.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h \
  ../Core/Inc/stm32f1xx_hal_conf.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc.h \
@@ -24,19 +24,8 @@ Core/Src/CanController.o: ../Core/Src/CanController.cpp \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash_ex.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h \
- ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h \
- ../Core/Inc/Parameters.hpp \
- ../Core/Inc/CRSLib/Can/RM0008/include/can_manager.hpp \
- ../Core/Inc/CRSLib/Can/CommonAmongMpu/include/utility.hpp \
- ../Core/Inc/CRSLib/include/std_int.hpp \
- ../Core/Inc/CRSLib/Can/RM0008/include/hal_can.hpp \
- ../Core/Inc/CRSLib/Can/RM0008/include/pillarbox.hpp \
- ../Core/Inc/CRSLib/Can/RM0008/include/letterbox.hpp \
- ../Core/Inc/CRSLib/include/utility.hpp \
- ../Core/Inc/CRSLib/Can/RM0008/include/utility.hpp \
- ../Core/Inc/led_process.hpp \
- ../Core/Inc/CRSLib/Can/CommonAmongMPU/include/pack.hpp
-../Core/Inc/CanController.hpp:
+ ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h
+../Core/Inc/led_process.hpp:
 ../Core/Inc/main.h:
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h:
 ../Core/Inc/stm32f1xx_hal_conf.h:
@@ -63,14 +52,3 @@ Core/Src/CanController.o: ../Core/Src/CanController.cpp \
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h:
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h:
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h:
-../Core/Inc/Parameters.hpp:
-../Core/Inc/CRSLib/Can/RM0008/include/can_manager.hpp:
-../Core/Inc/CRSLib/Can/CommonAmongMpu/include/utility.hpp:
-../Core/Inc/CRSLib/include/std_int.hpp:
-../Core/Inc/CRSLib/Can/RM0008/include/hal_can.hpp:
-../Core/Inc/CRSLib/Can/RM0008/include/pillarbox.hpp:
-../Core/Inc/CRSLib/Can/RM0008/include/letterbox.hpp:
-../Core/Inc/CRSLib/include/utility.hpp:
-../Core/Inc/CRSLib/Can/RM0008/include/utility.hpp:
-../Core/Inc/led_process.hpp:
-../Core/Inc/CRSLib/Can/CommonAmongMPU/include/pack.hpp:

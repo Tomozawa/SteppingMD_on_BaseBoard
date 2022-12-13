@@ -7,17 +7,6 @@
 #include<Parameters.hpp>
 #include<CRSLib/Can/RM0008/include/can_manager.hpp>
 
-//コールバック関数オブジェクトのデータ型
-//第1引数に引数に受信したデータを取る
-//第2引数に受信したメッセージのIDを取る
-//返り値の整数型は予約
-typedef std::function<int(uint8_t, uint32_t)> CANCALLBACK_INT8;
-typedef std::function<int(float, uint32_t)> CANCALLBACK_FLOAT;
-typedef std::function<int(uint32_t, uint32_t)> CANCALLBACK_INT32;
-
-//どうせ文字列で通信しない
-//typedef std::function<int(std::string, uint32_t)> CANCALLBACK_STR;
-
 namespace stepping_md {
 	//CanControllerに必要な最小限の実装
 	//基本的にはそのままにしておくこと

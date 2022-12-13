@@ -34,6 +34,7 @@ Core/Src/wrapper.o: ../Core/Src/wrapper.cpp ../Core/Inc/main.h \
  ../Core/Inc/CRSLib/Can/RM0008/include/letterbox.hpp \
  ../Core/Inc/CRSLib/include/utility.hpp \
  ../Core/Inc/CRSLib/Can/RM0008/include/utility.hpp \
+ ../Core/Inc/led_process.hpp \
  ../Core/Inc/CRSLib/Can/RM0008/include/filter_manager.hpp \
  ../Core/Inc/CRSLib/include/bit_operate.hpp \
  ../Core/Inc/CRSLib/Can/RM0008/include/filter.hpp \
@@ -76,6 +77,7 @@ Core/Src/wrapper.o: ../Core/Src/wrapper.cpp ../Core/Inc/main.h \
 ../Core/Inc/CRSLib/Can/RM0008/include/letterbox.hpp:
 ../Core/Inc/CRSLib/include/utility.hpp:
 ../Core/Inc/CRSLib/Can/RM0008/include/utility.hpp:
+../Core/Inc/led_process.hpp:
 ../Core/Inc/CRSLib/Can/RM0008/include/filter_manager.hpp:
 ../Core/Inc/CRSLib/include/bit_operate.hpp:
 ../Core/Inc/CRSLib/Can/RM0008/include/filter.hpp:

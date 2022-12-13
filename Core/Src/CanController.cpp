@@ -1,5 +1,6 @@
 //Can関係のクラス
 #include<CanController.hpp>
+#include<led_process.hpp>
 #include<algorithm>
 #include<CRSLib/Can/CommonAmongMPU/include/pack.hpp>
 
@@ -9,7 +10,8 @@ namespace stepping_md {
 	std::list<CanController_Base> CanController_Base::instances;
 
 	/*明示的特殊化*/
-	template class CanController<uint32_t>;
+	//ackを使用しないので不要
+	//template class CanController<uint32_t>;
 	template class CanController<float>;
 	template class CanController<uint8_t>;
 	//文字列で通信しない
@@ -78,6 +80,7 @@ namespace stepping_md {
 			RM0008::RxFrame rx_frame;
 			can_manager.letterbox0.receive(rx_frame);
 			rx_frames.push_back(rx_frame);
+			blink_can_led();
 		}
 		//fifo1は使用しない設定(wrapper.cppのConfigFilterArg型の変数の宣言部を参照)
 		/*
