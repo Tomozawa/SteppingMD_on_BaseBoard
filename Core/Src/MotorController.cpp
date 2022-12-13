@@ -81,7 +81,7 @@ namespace stepping_md
         stepping_md::MotorParam motor_param = params.get_motor_param();
 
         //pwmの周期を設定する
-        pwm_tim->Instance->ARR = (uint32_t)(HAL_RCC_GetPCLK1Freq()/speed/motor_param.ppr);
+        pwm_tim->Instance->ARR = (uint32_t)(HAL_RCC_GetPCLK1Freq()/pwm_tim->Instance->PSC/speed/motor_param.ppr);
     }
 
     void MotorController::update(){
