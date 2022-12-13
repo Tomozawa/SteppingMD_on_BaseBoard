@@ -4,6 +4,8 @@
 #include<Parameters.hpp>
 
 namespace stepping_md{
+	std::list<Parameters_Base> Parameters_Base::instances;
+
     //パラメータを取得する関数
 	//第1引数は結果を格納する構造体オブジェクトへのポインタ
 	MotorParam Parameters::get_motor_param()
@@ -19,13 +21,13 @@ namespace stepping_md{
     }
 
 	//BIDを取得する関数
-	uint32_t Parameters::get_BID()
+	uint16_t Parameters::get_BID()
     {
         return BID;
     }
 
 	//BIDを設定する関数
-	void Parameters::set_BID(const uint32_t bid)
+	void Parameters::set_BID(const uint16_t bid)
     {
         BID = bid;
     }

@@ -20,20 +20,19 @@ namespace stepping_md{
 		private:
 			static std::list<MotorController_Base> instances;
 		protected:
-			explicit MotorController_Base(){instances.push_back(*this);}
+			explicit MotorController_Base(){MotorController_Base::instances.push_back(*this);}
 		public:
 			inline static void trigger_emergency_callback(void){
-				for(MotorController_Base controller : instances){
+				for(MotorController_Base controller : MotorController_Base::instances){
 					controller.emergency_callback();
 				}
 			}
 
 			inline static void trigger_update(void){
-				for(MotorController_Base controller : instances){
+				for(MotorController_Base controller : MotorController_Base::instances){
 					controller.update();
 				}
 			}
-
 			virtual void emergency_callback(void){throw std::logic_error("emergency_callback is not implemented");}
 			virtual void update(void){throw std::logic_error("update is not implemented");}
 	};

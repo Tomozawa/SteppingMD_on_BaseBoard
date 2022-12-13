@@ -39,15 +39,15 @@ CAN通信には標準IDを用いる2.0Aを使用し、ボーレートは1Mbpsで
 | -------- | ------- | -------- | ------- | ------- |
 | BID | MotorA | cmd | uint8_t | 動作モードを指定します |
 | BID+1 | MotorA | target | float | 各モードで解釈が異なります |
-| BID+2 | MotorA | diagnostic | byte[8] | 標準出力として使えます |
+| BID+2 | MotorA | reserved |  | 予約 |
 | BID+3 | MotorA | ack | uint32_t | cmd送出の結果です。0:正常終了 |
 | BID+4 | MotorC | cmd | uint8_t | 動作モードを指定します |
 | BID+5 | MotorC | target | float | 各モードで解釈が異なります |
-| BID+6 | MotorC | diagnostic | byte[8] | 標準出力として使えます |
+| BID+6 | MotorC | reserved |  | 予約 |
 | BID+7 | MotorC | ack | uint32_t | cmd送出の結果です。0:正常終了 |
 | BID+8 | MotorE | cmd | uint8_t | 動作モードを指定します |
 | BID+9 | MotorE | target | float | 各モードで解釈が異なります |
-| BID+10 | MotorE | diagnostic | byte[8] | 標準出力として使えます |
+| BID+10 | MotorE | reserved |  | 予約 |
 | BID+11 | MotorE | ack | uint32_t | cmd送出の結果です。0:正常終了 |
 
 以降BID、BID+4、BID+8をそれぞれ、BIDA、BIDC、BIDEと定義します。

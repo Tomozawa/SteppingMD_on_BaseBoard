@@ -1,14 +1,16 @@
-../Core/Inc/MotorController.hpp:38:17:virtual void stepping_md::MotorController_Base::update()	8	static
-../Core/Inc/MotorController.hpp:37:17:virtual void stepping_md::MotorController_Base::emergency_callback()	8	static
-../Core/Src/MotorController.cpp:7:10:void stepping_md::MotorController::update_position()	16	static
-../Core/Src/MotorController.cpp:17:10:void stepping_md::MotorController::set_direction(int)	16	static
-../Core/Src/MotorController.cpp:40:10:void stepping_md::MotorController::start()	8	static
-../Core/Src/MotorController.cpp:45:10:void stepping_md::MotorController::stop()	8	static
-../Core/Src/MotorController.cpp:30:10:void stepping_md::MotorController::enable()	8	static
-../Core/Src/MotorController.cpp:35:10:void stepping_md::MotorController::disable()	8	static
-../Core/Inc/MotorController.hpp:90:12:virtual void stepping_md::MotorController::emergency_callback()	8	static
-../Core/Src/MotorController.cpp:50:10:void stepping_md::MotorController::move_to_target(float)	8	static
-../Core/Src/MotorController.cpp:85:10:virtual void stepping_md::MotorController::update()	32	static
-../Core/Src/MotorController.cpp:57:5:stepping_md::MotorController::MotorController(GPIO_PIN, GPIO_Port, GPIO_PIN, GPIO_Port, float, TIM_HandleTypeDef*, stepping_md::Parameters&)	32	static
-../Core/Src/MotorController.cpp:74:10:void stepping_md::MotorController::set_speed(float)	32	static
-../Core/Src/MotorController.cpp:101:10:void stepping_md::MotorController::set_register(const stepping_md::Parameters&)	0	static
+../Core/Inc/MotorController.hpp:37:17:virtual void stepping_md::MotorController_Base::update()	8	static
+../Core/Inc/MotorController.hpp:36:17:virtual void stepping_md::MotorController_Base::emergency_callback()	8	static
+../Core/Src/MotorController.cpp:9:10:void stepping_md::MotorController::update_position()	16	static
+../Core/Src/MotorController.cpp:19:10:void stepping_md::MotorController::set_direction(int)	16	static
+../Core/Src/MotorController.cpp:42:10:void stepping_md::MotorController::start()	8	static
+../Core/Src/MotorController.cpp:47:10:void stepping_md::MotorController::stop()	8	static
+../Core/Src/MotorController.cpp:32:10:void stepping_md::MotorController::enable()	8	static
+../Core/Src/MotorController.cpp:37:10:void stepping_md::MotorController::disable()	8	static
+../Core/Inc/MotorController.hpp:89:12:virtual void stepping_md::MotorController::emergency_callback()	8	static
+../Core/Src/MotorController.cpp:52:10:void stepping_md::MotorController::move_to_target(float)	8	static
+../Core/Src/MotorController.cpp:87:10:virtual void stepping_md::MotorController::update()	32	static
+../Core/Src/MotorController.cpp:59:5:stepping_md::MotorController::MotorController(GPIO_PIN, GPIO_Port, GPIO_PIN, GPIO_Port, float, TIM_HandleTypeDef*, stepping_md::Parameters&)	32	static
+../Core/Src/MotorController.cpp:76:10:void stepping_md::MotorController::set_speed(float)	32	static
+../Core/Src/MotorController.cpp:103:10:void stepping_md::MotorController::set_register(const stepping_md::Parameters&)	0	static
+../Core/Src/MotorController.cpp:107:1:cpp)	0	static
+../Core/Src/MotorController.cpp:107:1:cpp)	16	static

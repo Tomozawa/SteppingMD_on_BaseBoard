@@ -45,7 +45,6 @@ namespace stepping_md{
 					controller.emergency_callback();
 				}
 			}
-
 			virtual void emergency_callback(void){throw std::logic_error("emergency_callback is not implemented");}
 	};
 
@@ -53,7 +52,7 @@ namespace stepping_md{
 	//要実装
 	class Parameters : public Parameters_Base{
 		private:
-		        uint32_t BID;
+		        uint16_t BID;
 			//Parameters上で扱うMD_MODEとpprとtargetのメンバ変数
 			MotorParam SMParam;
 		public:
@@ -69,10 +68,10 @@ namespace stepping_md{
 			void set_motor_param(const MotorParam& param);
 
 			//BIDを取得する関数
-			uint32_t get_BID();
+			uint16_t get_BID();
 
 			//BIDを設定する関数
-			void set_BID(const uint32_t bid);
+			void set_BID(const uint16_t bid);
 
 			//Emergencyボタンが押されたときに呼ばれるコールバック関数
 			//emergency_callbackはパラメーターのうちmodeをMD_MODE::DEFAULTにする関数
