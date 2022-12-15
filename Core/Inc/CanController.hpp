@@ -8,26 +8,11 @@
 #include<CRSLib/Can/RM0008/include/can_manager.hpp>
 
 namespace stepping_md {
-	//CanControllerに必要な最小限の実装
-	//基本的にはそのままにしておくこと
-	class CanController_Base{
-		private:
-			static std::list<CanController_Base> instances;
-		protected:
-			explicit CanController_Base(){instances.push_back(*this);}
-		public:
-			static inline void trigger_update(void){
-				for(CanController_Base instance : instances){
-					instance.update();
-				}
-			}
-			virtual void update(void){throw std::logic_error("update is not implemented");}
-	};
-
 	template<typename T>
-	class CanController : public CanController_Base{
+	class CanController{
 		private:
 			static std::vector<CRSLib::Can::RM0008::RxFrame> rx_frames;
+			static std::list<CanController<T>> instances;
 
 			CRSLib::Can::RM0008::CanManager& can_manager;
 			std::function<int(T, uint32_t)> callback;
@@ -51,5 +36,7 @@ namespace stepping_md {
 			//パラメーター保管庫からBIDを読み取ってフィルタリングするIDを設定する関数
 			//Canの送信をまとめて行ってもよい
 			void update(void);
+
+			static void trigger_update(void);
 	};
 }

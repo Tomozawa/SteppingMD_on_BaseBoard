@@ -4,7 +4,7 @@
 #include<Parameters.hpp>
 
 namespace stepping_md{
-	std::list<Parameters_Base> Parameters_Base::instances;
+	std::list<Parameters> Parameters::instances;
 
     //パラメータを取得する関数
 	//第1引数は結果を格納する構造体オブジェクトへのポインタ
@@ -32,4 +32,9 @@ namespace stepping_md{
         BID = bid;
     }
 
+	void Parameters::trigger_emergency_callback(void){
+		for(Parameters parameters : instances){
+			parameters.emergency_callback();
+		}
+	}
 }

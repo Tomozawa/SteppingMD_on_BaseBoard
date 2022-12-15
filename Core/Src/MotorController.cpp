@@ -4,7 +4,7 @@
 
 namespace stepping_md
 {
-	std::list<MotorController_Base> MotorController_Base::instances;
+	std::list<MotorController> MotorController::instances;
 
     void MotorController::update_position(){
         //現在の位置を更新する
@@ -102,6 +102,18 @@ namespace stepping_md
 
     void MotorController::set_register(const Parameters& params){
         this->params = params;
+    }
+
+    void MotorController::trigger_emergency_callback(void){
+    	for(MotorController controller : instances){
+    		controller.emergency_callback();
+    	}
+    }
+
+    void MotorController::trigger_update(void){
+    	for(MotorController controller : instances){
+    		controller.update();
+    	}
     }
 
 } // namespace stapping_md

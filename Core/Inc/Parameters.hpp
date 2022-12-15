@@ -32,29 +32,22 @@ namespace stepping_md{
 		float target;
 	};
 
-	//Parametersに最低限必要な実装
-	//基本的にはそのままにしておくこと
-	class Parameters_Base{
-		private:
-			static std::list<Parameters_Base> instances;
-		protected:
-			explicit Parameters_Base(){instances.push_back(*this);}
-		public:
-			inline static void trigger_emergency_callback(void){
-				for(Parameters_Base controller : instances){
-					controller.emergency_callback();
-				}
-			}
-			virtual void emergency_callback(void){throw std::logic_error("emergency_callback is not implemented");}
-	};
-
 	//パラメーターの書き込み・読み込みを行うクラス
 	//要実装
-	class Parameters : public Parameters_Base{
+	class Parameters{
 		private:
 		        uint16_t BID;
 			//Parameters上で扱うMD_MODEとpprとtargetのメンバ変数
 			MotorParam SMParam;
+
+			static std::list<Parameters> instances;
+
+			//Emergencyボタンが押されたときに呼ばれるコールバック関数
+			//emergency_callbackはパラメーターのうちmodeをMD_MODE::DEFAULTにする関数
+			void emergency_callback(void)
+			{
+				SMParam.mode = MD_MODE::DEFAULT;
+			}
 		public:
 			//コンストラクタ(引数やオーバーロードは自由に決めてよい)
 			explicit Parameters(){}
@@ -73,11 +66,6 @@ namespace stepping_md{
 			//BIDを設定する関数
 			void set_BID(const uint16_t bid);
 
-			//Emergencyボタンが押されたときに呼ばれるコールバック関数
-			//emergency_callbackはパラメーターのうちmodeをMD_MODE::DEFAULTにする関数
-			void emergency_callback(void) override
-			{
-				SMParam.mode = MD_MODE::DEFAULT;
-			}
+			static void trigger_emergency_callback(void);
 	};
 }

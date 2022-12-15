@@ -34,6 +34,7 @@ struct CanControllersEntry final{
 	//CanController<uint32_t> ack;
 };
 
+static bool error_request_flag = false;
 
 //メイン関数
 void wrapper_cpp(void){
@@ -202,16 +203,20 @@ void wrapper_cpp(void){
 	HAL_CAN_Start(&hcan);
 
 	while(true){
-		CanController_Base::trigger_update();
-		MotorController_Base::trigger_update();
+		if(error_request_flag){
+			MotorController::trigger_emergency_callback();
+			Parameters::trigger_emergency_callback();
+			off_yellow_led();
+			error_request_flag = false;
+		}
+
+		CanController<uint8_t>::trigger_update();
+		CanController<float>::trigger_update();
+		MotorController::trigger_update();
 		led_process();
 	}
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
-	if(GPIO_Pin == EMS_Pin){
-		MotorController_Base::trigger_emergency_callback();
-		Parameters_Base::trigger_emergency_callback();
-		off_yellow_led();
-	}
+	if(GPIO_Pin == EMS_Pin) error_request_flag = true;
 }

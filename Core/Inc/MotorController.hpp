@@ -14,31 +14,8 @@ typedef uint16_t GPIO_PIN;
 typedef GPIO_TypeDef* GPIO_Port;
 
 namespace stepping_md{
-	//MotorControllerに必要な最小限の実装
-	//基本的にはそのままにしておくこと
-	class MotorController_Base{
-		private:
-			static std::list<MotorController_Base> instances;
-		protected:
-			explicit MotorController_Base(){MotorController_Base::instances.push_back(*this);}
-		public:
-			inline static void trigger_emergency_callback(void){
-				for(MotorController_Base controller : MotorController_Base::instances){
-					controller.emergency_callback();
-				}
-			}
-
-			inline static void trigger_update(void){
-				for(MotorController_Base controller : MotorController_Base::instances){
-					controller.update();
-				}
-			}
-			virtual void emergency_callback(void){throw std::logic_error("emergency_callback is not implemented");}
-			virtual void update(void){throw std::logic_error("update is not implemented");}
-	};
-
 	//以下のクラスが要実装
-	class MotorController : public MotorController_Base{
+	class MotorController{
 		private:
 			const GPIO_PIN ena_pin;
 			const GPIO_Port ena_port;
@@ -54,6 +31,8 @@ namespace stepping_md{
 			float current_speed = 0;//rpm
 			float positon = 0;//radian
 
+			static std::list<MotorController> instances;
+
 			void update_position();
 			void set_direction(int _direction);
 			void enable();
@@ -61,6 +40,16 @@ namespace stepping_md{
 			void start();
 			void stop();
 			void move_to_target(float target);
+
+			//パラメーターの値を読み込み、それに従ってモーターに出力する関数
+			//定期的に呼ばれる
+			void update(void);
+
+			//Emergencyスイッチが扱われたとき呼ばれるコールバック関数
+		    void emergency_callback(){
+		        stop();
+		        disable();
+		    }
 
 		public:
 			//コンストラクタ(引数やオーバーロードは自由に決めてよい)
@@ -77,18 +66,12 @@ namespace stepping_md{
 			//パラメータを保持する保管庫的なクラスを登録する関数
 			void set_register(const Parameters& params);
 
-			//パラメーターの値を読み込み、それに従ってモーターに出力する関数
-			//定期的に呼ばれる
-
-			void update(void) override;
-
 			//モーターの回転速度を設定する関数
 			//引数はrpm
 			void set_speed(float speed);
-			//Emergencyスイッチが扱われたとき呼ばれるコールバック関数
-		    void emergency_callback() override{
-		        stop();
-		        disable();
-		    }
+
+		    static void trigger_emergency_callback(void);
+
+		    static void trigger_update(void);
 	};
 }

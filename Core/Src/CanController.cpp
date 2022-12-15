@@ -7,7 +7,6 @@
 using namespace CRSLib::Can;
 
 namespace stepping_md {
-	std::list<CanController_Base> CanController_Base::instances;
 
 	/*明示的特殊化*/
 	//ackを使用しないので不要
@@ -22,7 +21,12 @@ namespace stepping_md {
 	std::vector<CRSLib::Can::RM0008::RxFrame> CanController<T>::rx_frames;
 
 	template<typename T>
-	CanController<T>::CanController(RM0008::CanManager& can_manager, Parameters& params, uint32_t offset_from_bid): can_manager(can_manager), params(params), offset_from_bid(offset_from_bid){}
+	std::list<CanController<T>> CanController<T>::instances;
+
+	template<typename T>
+	CanController<T>::CanController(RM0008::CanManager& can_manager, Parameters& params, uint32_t offset_from_bid): can_manager(can_manager), params(params), offset_from_bid(offset_from_bid){
+		CanController<T>::instances.push_back(*this);
+	}
 
 	template<typename T>
 	void CanController<T>::set_callback(const std::function<int(T, uint32_t)> callback){
@@ -130,4 +134,11 @@ namespace stepping_md {
 		}
 	}
 	*/
+
+	template<typename T>
+	void CanController<T>::trigger_update(){
+		for(CanController<T> controller : instances){
+			controller.update();
+		}
+	}
 }

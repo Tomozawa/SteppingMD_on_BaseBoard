@@ -2,5 +2,6 @@
 ../Core/Src/Parameters.cpp:18:7:void stepping_md::Parameters::set_motor_param(const stepping_md::MotorParam&)	0	static
 ../Core/Src/Parameters.cpp:24:11:uint16_t stepping_md::Parameters::get_BID()	0	static
 ../Core/Src/Parameters.cpp:30:7:void stepping_md::Parameters::set_BID(uint16_t)	0	static
-../Core/Src/Parameters.cpp:35:1:cpp)	0	static
-../Core/Src/Parameters.cpp:35:1:cpp)	16	static
+../Core/Src/Parameters.cpp:35:7:static void stepping_md::Parameters::trigger_emergency_callback()	0	static
+../Core/Src/Parameters.cpp:40:1:cpp)	0	static
+../Core/Src/Parameters.cpp:40:1:cpp)	16	static
