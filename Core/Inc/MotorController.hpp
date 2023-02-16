@@ -24,6 +24,7 @@ namespace stepping_md{
 			const float error_threshold;
 			TIM_HandleTypeDef* pwm_tim;
 			Parameters& params;
+			unsigned long source_clock;
 
 			uint32_t start_time = 0;//ms 速度変化があったときのタイムスタンプ
 			int direction = 1;//dir_pinがHIGHのとき1,LOWのとき-1
@@ -31,7 +32,7 @@ namespace stepping_md{
 			float current_speed = 0;//rpm
 			float positon = 0;//radian
 
-			static std::list<MotorController> instances;
+			static std::list<MotorController*> pInstances;
 
 			void update_position();
 			void set_direction(int _direction);
@@ -60,7 +61,8 @@ namespace stepping_md{
 				const GPIO_Port dir_port,//DIRのポート
 				const float error_threshold,//目標値と現在値の差がこの値以下になったらPWMを止める。単位はrad
 				TIM_HandleTypeDef* pwm_tim,//PWMを出力するタイマ(CH1から出力される)
-				Parameters& params//パラメータを保持する保管庫的なクラス
+				Parameters& params,//パラメータを保持する保管庫的なクラス
+				unsigned long source_clock //タイマに供給されるクロック周波数
 			);
 
 			//パラメータを保持する保管庫的なクラスを登録する関数
@@ -69,6 +71,9 @@ namespace stepping_md{
 			//モーターの回転速度を設定する関数
 			//引数はrpm
 			void set_speed(float speed);
+
+			//現在位置を0にする
+			void reset_position(void);
 
 		    static void trigger_emergency_callback(void);
 

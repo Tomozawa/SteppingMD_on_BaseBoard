@@ -81,7 +81,7 @@ namespace CRSLib::Can::RM0008::FilterManager
 	{
 		constexpr u32 bit_position = (u32)1 << index;
 
-		// change filter content.
+		// change filter content
 		u32 tmp_buffer[2];
 		std::memcpy(tmp_buffer, &filter_arg.filter, 8);
 		bxcan->sFilterRegister[index].FR1 = tmp_buffer[0];

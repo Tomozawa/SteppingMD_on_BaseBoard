@@ -13,7 +13,8 @@ extern "C"{
 	extern TIM_HandleTypeDef htim3;
 }
 
-#define IS_EMERGENCY() (HAL_GPIO_ReadPin(EMS_GPIO_Port, EMS_Pin) == GPIO_PIN_RESET)
+//#define IS_EMERGENCY() (HAL_GPIO_ReadPin(EMS_GPIO_Port, EMS_Pin) == GPIO_PIN_RESET)
+#define IS_EMERGENCY() (false)
 
 using namespace stepping_md;
 using namespace CRSLib::Can::RM0008::FilterManager;
@@ -21,6 +22,9 @@ using namespace CRSLib::Can::RM0008::FilterManager;
 typedef CRSLib::Can::FilterWidth FilterWidth;
 typedef CRSLib::Can::FilterMode FilterMode;
 typedef CRSLib::Can::RM0008::FifoIndex FifoIndex;
+
+template<FilterWidth width>
+using FrameFeature = CRSLib::Can::FrameFeature<width>;
 
 constexpr int A = 0;
 constexpr int C = 1;
@@ -36,6 +40,9 @@ struct CanControllersEntry final{
 
 static bool error_request_flag = false;
 
+inline unsigned long get_general_tim_clock();
+inline unsigned long get_advanced_tim_clock();
+
 //メイン関数
 void wrapper_cpp(void){
 	//各種ハンドラ定義
@@ -43,10 +50,11 @@ void wrapper_cpp(void){
 	constexpr float error_threshold = 2.0f * std::numbers::pi / 72.0f; //5°の誤差
 	Parameters parameters[3];
 	MotorController motors[] = {
-			MotorController(ENAA_Pin, ENAA_GPIO_Port, DIRA_Pin, DIRA_GPIO_Port, error_threshold, &htim1, parameters[A]),
-			MotorController(ENAC_Pin, ENAC_GPIO_Port, DIRC_Pin, DIRC_GPIO_Port, error_threshold, &htim2, parameters[C]),
-			MotorController(ENAE_Pin, ENAE_GPIO_Port, DIRE_Pin, DIRE_GPIO_Port, error_threshold, &htim3, parameters[E])
+			MotorController(ENAA_Pin, ENAA_GPIO_Port, DIRA_Pin, DIRA_GPIO_Port, error_threshold, &htim1, parameters[A], get_advanced_tim_clock()),
+			MotorController(ENAC_Pin, ENAC_GPIO_Port, DIRC_Pin, DIRC_GPIO_Port, error_threshold, &htim2, parameters[C], get_general_tim_clock()),
+			MotorController(ENAE_Pin, ENAE_GPIO_Port, DIRE_Pin, DIRE_GPIO_Port, error_threshold, &htim3, parameters[E], get_general_tim_clock())
 	};
+
 	CanControllersEntry cancontrollers[] = {
 			CanControllersEntry{.cmd = CanController<uint8_t>(can_mgr, parameters[A], 0), .target = CanController<float>(can_mgr, parameters[A], 1)},
 			CanControllersEntry{.cmd = CanController<uint8_t>(can_mgr, parameters[C], 0), .target = CanController<float>(can_mgr, parameters[C], 1)},
@@ -56,9 +64,9 @@ void wrapper_cpp(void){
 	//パラメーター設定
 	//ver1.0ではフラッシュから読みだす
 	constexpr uint16_t bida = 0x300;
-	constexpr uint16_t two_bit_ignore_mask = ~0x11;
+	constexpr uint16_t two_bit_ignore_mask = ~0b11;
 	constexpr float ppr = 200;
-	constexpr float rpm = 120;
+	constexpr float rpm = 240;
 	parameters[A].set_BID(bida);
 	parameters[C].set_BID(bida + 4);
 	parameters[E].set_BID(bida + 8);
@@ -85,7 +93,6 @@ void wrapper_cpp(void){
 			}
 	);
 
-
 	//モーター設定
 	motors[A].set_speed(rpm);
 	motors[C].set_speed(rpm);
@@ -98,8 +105,8 @@ void wrapper_cpp(void){
 	ConfigFilterArg<FilterWidth::bit32, FilterMode::mask> filterA{
 		.filter = {
 			.masked32 = {
-					.id = {parameters[A].get_BID(), CRSLib::Can::max_ext_id, false, false},
-					.mask = {two_bit_ignore_mask, CRSLib::Can::max_ext_id, false, false}
+					.id = FrameFeature<FilterWidth::bit32>((parameters[A].get_BID)(), 0x0, false, false),
+					.mask = FrameFeature<FilterWidth::bit32>(two_bit_ignore_mask, CRSLib::Can::max_ext_id, true, true)
 			}
 		},
 		.fifo = FifoIndex::fifo0,
@@ -109,8 +116,8 @@ void wrapper_cpp(void){
 	ConfigFilterArg<FilterWidth::bit32, FilterMode::mask> filterC{
 		.filter = {
 			.masked32 = {
-					.id = {parameters[C].get_BID(), CRSLib::Can::max_ext_id, false, false},
-					.mask = {two_bit_ignore_mask, CRSLib::Can::max_ext_id, false, false}
+					.id = FrameFeature<FilterWidth::bit32>((parameters[C].get_BID)(), 0x0, false, false),
+					.mask = FrameFeature<FilterWidth::bit32>(two_bit_ignore_mask, CRSLib::Can::max_ext_id, true, true)
 			}
 		},
 		.fifo = FifoIndex::fifo0,
@@ -120,8 +127,8 @@ void wrapper_cpp(void){
 	ConfigFilterArg<FilterWidth::bit32, FilterMode::mask> filterE{
 		.filter = {
 			.masked32 = {
-					.id = {parameters[E].get_BID(), CRSLib::Can::max_ext_id, false, false},
-					.mask = {two_bit_ignore_mask, CRSLib::Can::max_ext_id, false, false}
+					.id = FrameFeature<FilterWidth::bit32>((parameters[E].get_BID)(), 0x0, false, false),
+					.mask = FrameFeature<FilterWidth::bit32>(two_bit_ignore_mask, CRSLib::Can::max_ext_id, true, true)
 			}
 		},
 		.fifo = FifoIndex::fifo0,
@@ -137,9 +144,14 @@ void wrapper_cpp(void){
 			[&parameters](uint8_t value, uint32_t id)->int{
 				if(!IS_EMERGENCY()){
 					MotorParam current_param = parameters[A].get_motor_param();
+
+					const bool is_disabled_now = current_param.mode == MD_MODE::DISABLE || current_param.mode == MD_MODE::DEFAULT;
+					const bool is_disabled_to_be_set = static_cast<MD_MODE>(value) == MD_MODE::DISABLE || static_cast<MD_MODE>(value) == MD_MODE::DEFAULT;
+					if(is_disabled_now && (!is_disabled_to_be_set)) led_mgr::increase_enabled_motor();
+					else if((!is_disabled_now) && is_disabled_to_be_set) led_mgr::decrease_enabled_motor();
+
 					current_param.mode = static_cast<MD_MODE>(value);
 					parameters[A].set_motor_param(current_param);
-					if(current_param.mode != MD_MODE::DEFAULT){on_yellow_led();}
 				}
 				return 0;
 			}
@@ -148,9 +160,14 @@ void wrapper_cpp(void){
 			[&parameters](uint8_t value, uint32_t id)->int{
 				if(!IS_EMERGENCY()){
 					MotorParam current_param = parameters[C].get_motor_param();
+
+					const bool is_disabled_now = current_param.mode == MD_MODE::DISABLE || current_param.mode == MD_MODE::DEFAULT;
+					const bool is_disabled_to_be_set = static_cast<MD_MODE>(value) == MD_MODE::DISABLE || static_cast<MD_MODE>(value) == MD_MODE::DEFAULT;
+					if(is_disabled_now && (!is_disabled_to_be_set)) led_mgr::increase_enabled_motor();
+					else if((!is_disabled_now) && is_disabled_to_be_set) led_mgr::decrease_enabled_motor();
+
 					current_param.mode = static_cast<MD_MODE>(value);
 					parameters[C].set_motor_param(current_param);
-					if(current_param.mode != MD_MODE::DEFAULT){on_yellow_led();}
 				}
 				return 0;
 			}
@@ -159,9 +176,14 @@ void wrapper_cpp(void){
 			[&parameters](uint8_t value, uint32_t id)->int{
 				if(!IS_EMERGENCY()){
 					MotorParam current_param = parameters[E].get_motor_param();
+
+					const bool is_disabled_now = current_param.mode == MD_MODE::DISABLE || current_param.mode == MD_MODE::DEFAULT;
+					const bool is_disabled_to_be_set = static_cast<MD_MODE>(value) == MD_MODE::DISABLE || static_cast<MD_MODE>(value) == MD_MODE::DEFAULT;
+					if(is_disabled_now && (!is_disabled_to_be_set)) led_mgr::increase_enabled_motor();
+					else if((!is_disabled_now) && is_disabled_to_be_set) led_mgr::decrease_enabled_motor();
+
 					current_param.mode = static_cast<MD_MODE>(value);
 					parameters[E].set_motor_param(current_param);
-					if(current_param.mode != MD_MODE::DEFAULT){on_yellow_led();}
 				}
 				return 0;
 			}
@@ -169,31 +191,37 @@ void wrapper_cpp(void){
 
 	//targetコールバック
 	cancontrollers[A].target.set_callback(
-			[&parameters](float value, uint32_t id)->int{
-				if((!IS_EMERGENCY()) && parameters[A].get_motor_param().mode == MD_MODE::DEFAULT){
+			[&parameters, &motors](float value, uint32_t id)->int{
+				const bool is_disabled = parameters[A].get_motor_param().mode == MD_MODE::DEFAULT || parameters[A].get_motor_param().mode == MD_MODE::DISABLE;
+				if((!IS_EMERGENCY()) && (!is_disabled)){
 					MotorParam current_param = parameters[A].get_motor_param();
 					current_param.target = value;
 					parameters[A].set_motor_param(current_param);
+					if(current_param.mode == MD_MODE::POS) motors[A].reset_position();
 				}
 				return 0;
 			}
 	);
 	cancontrollers[C].target.set_callback(
-			[&parameters](float value, uint32_t id)->int{
-				if((!IS_EMERGENCY()) && parameters[C].get_motor_param().mode == MD_MODE::DEFAULT){
+			[&parameters, &motors](float value, uint32_t id)->int{
+				const bool is_disabled = parameters[C].get_motor_param().mode == MD_MODE::DEFAULT || parameters[C].get_motor_param().mode == MD_MODE::DISABLE;
+				if((!IS_EMERGENCY()) && (!is_disabled)){
 					MotorParam current_param = parameters[C].get_motor_param();
 					current_param.target = value;
 					parameters[C].set_motor_param(current_param);
+					if(current_param.mode == MD_MODE::POS) motors[C].reset_position();
 				}
 				return 0;
 			}
 	);
 	cancontrollers[E].target.set_callback(
-			[&parameters](float value, uint32_t id)->int{
-				if((!IS_EMERGENCY()) && parameters[E].get_motor_param().mode == MD_MODE::DEFAULT){
+			[&parameters, &motors](float value, uint32_t id)->int{
+				const bool is_disabled = parameters[E].get_motor_param().mode == MD_MODE::DEFAULT || parameters[E].get_motor_param().mode == MD_MODE::DISABLE;
+				if((!IS_EMERGENCY()) && (!is_disabled)){
 					MotorParam current_param = parameters[E].get_motor_param();
 					current_param.target = value;
 					parameters[E].set_motor_param(current_param);
+					if(current_param.mode == MD_MODE::POS) motors[E].reset_position();
 				}
 				return 0;
 			}
@@ -206,15 +234,29 @@ void wrapper_cpp(void){
 		if(error_request_flag){
 			MotorController::trigger_emergency_callback();
 			Parameters::trigger_emergency_callback();
-			off_yellow_led();
+			led_mgr::disable_all_motor();
 			error_request_flag = false;
 		}
 
 		CanController<uint8_t>::trigger_update();
 		CanController<float>::trigger_update();
 		MotorController::trigger_update();
-		led_process();
+		led_mgr::led_process();
 	}
+}
+
+unsigned long get_general_tim_clock(){
+	unsigned long result;
+	result = HAL_RCC_GetPCLK1Freq();
+	if(((RCC->CFGR & RCC_CFGR_PPRE1)>>8) >= 0b100) result *= 2; //APB1プリスケーラーが/1以外の時はタイマクロックはPCLK1の2倍
+	return result;
+}
+
+unsigned long get_advanced_tim_clock(){
+	unsigned long result;
+	result = HAL_RCC_GetPCLK2Freq();
+	if(((RCC->CFGR & RCC_CFGR_PPRE2)>>11) >= 0b100) result *= 2; //APB2プリスケーラーが/1以外の時はタイマクロックはPCLK2の2倍
+	return result;
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){

@@ -12,10 +12,11 @@ namespace stepping_md{
 		//起動直後やEmergencyスイッチが押されたときのモードです。
 		//モーターは一切動作しません
 		//ステッピングMDのENA信号はLOWになっています
-		DEFAULT,
+		DEFAULT = 0,
+		DISABLE = 1,
 
 		//位置制御モード
-		POS
+		POS = 4
 	};
 
 	//モーター制御に用いるパラメーターをまとめて定義した構造体
@@ -36,11 +37,11 @@ namespace stepping_md{
 	//要実装
 	class Parameters{
 		private:
-		        uint16_t BID;
+		    uint16_t BID;
 			//Parameters上で扱うMD_MODEとpprとtargetのメンバ変数
 			MotorParam SMParam;
 
-			static std::list<Parameters> instances;
+			static std::list<Parameters*> pInstances;
 
 			//Emergencyボタンが押されたときに呼ばれるコールバック関数
 			//emergency_callbackはパラメーターのうちmodeをMD_MODE::DEFAULTにする関数
@@ -50,7 +51,9 @@ namespace stepping_md{
 			}
 		public:
 			//コンストラクタ(引数やオーバーロードは自由に決めてよい)
-			explicit Parameters(){}
+			explicit Parameters(){
+				pInstances.push_back(this);
+			}
 
 			//パラメータを取得する関数
 			//第1引数は結果を格納する構造体オブジェクトへのポインタ

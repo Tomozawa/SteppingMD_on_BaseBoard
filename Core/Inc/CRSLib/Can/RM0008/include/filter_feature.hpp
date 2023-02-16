@@ -42,7 +42,8 @@ namespace CRSLib::Can
 		};
 
 		constexpr FrameFeature(const u16 std_id = max_std_id, const u32 ext_id = max_ext_id, const bool ide = false, const bool rtr = false) noexcept:
-			value{(u16)(std_id << (u16)21 | ext_id << (u32)3 | (u8)ide << 2 | (u8)rtr << 1)}
+			//value{(u16)(std_id << (u16)21 | ext_id << (u32)3 | (u8)ide << 2 | (u8)rtr << 1)}
+			value{(u32)(std_id << (u16)21 | ext_id << (u32)3 | (u8)ide << 2 | (u8)rtr << 1)}
 		{}
 
 		constexpr UnPack unpack() const noexcept

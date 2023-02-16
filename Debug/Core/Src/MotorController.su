@@ -5,11 +5,12 @@
 ../Core/Src/MotorController.cpp:32:10:void stepping_md::MotorController::enable()	8	static
 ../Core/Src/MotorController.cpp:37:10:void stepping_md::MotorController::disable()	8	static
 ../Core/Src/MotorController.cpp:52:10:void stepping_md::MotorController::move_to_target(float)	8	static
-../Core/Src/MotorController.cpp:59:5:stepping_md::MotorController::MotorController(GPIO_PIN, GPIO_Port, GPIO_PIN, GPIO_Port, float, TIM_HandleTypeDef*, stepping_md::Parameters&)	16	static
-../Core/Src/MotorController.cpp:76:10:void stepping_md::MotorController::set_speed(float)	32	static
-../Core/Src/MotorController.cpp:87:10:void stepping_md::MotorController::update()	32	static
-../Core/Src/MotorController.cpp:103:10:void stepping_md::MotorController::set_register(const stepping_md::Parameters&)	8	static
-../Core/Src/MotorController.cpp:107:10:static void stepping_md::MotorController::trigger_emergency_callback()	72	static
-../Core/Src/MotorController.cpp:113:10:static void stepping_md::MotorController::trigger_update()	72	static
-../Core/Src/MotorController.cpp:119:1:cpp)	0	static
-../Core/Src/MotorController.cpp:119:1:cpp)	16	static
+../Core/Src/MotorController.cpp:59:5:stepping_md::MotorController::MotorController(GPIO_PIN, GPIO_Port, GPIO_PIN, GPIO_Port, float, TIM_HandleTypeDef*, stepping_md::Parameters&, long unsigned int)	16	static
+../Core/Src/MotorController.cpp:80:10:void stepping_md::MotorController::set_speed(float)	32	static
+../Core/Src/MotorController.cpp:94:10:void stepping_md::MotorController::update()	32	static
+../Core/Src/MotorController.cpp:110:10:void stepping_md::MotorController::set_register(const stepping_md::Parameters&)	8	static
+../Core/Src/MotorController.cpp:114:10:void stepping_md::MotorController::reset_position()	0	static
+../Core/Src/MotorController.cpp:118:10:static void stepping_md::MotorController::trigger_emergency_callback()	16	static
+../Core/Src/MotorController.cpp:124:10:static void stepping_md::MotorController::trigger_update()	16	static
+../Core/Src/MotorController.cpp:130:1:cpp)	0	static
+../Core/Src/MotorController.cpp:130:1:cpp)	16	static

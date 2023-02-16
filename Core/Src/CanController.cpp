@@ -7,7 +7,6 @@
 using namespace CRSLib::Can;
 
 namespace stepping_md {
-
 	/*明示的特殊化*/
 	//ackを使用しないので不要
 	//template class CanController<uint32_t>;
@@ -21,11 +20,11 @@ namespace stepping_md {
 	std::vector<CRSLib::Can::RM0008::RxFrame> CanController<T>::rx_frames;
 
 	template<typename T>
-	std::list<CanController<T>> CanController<T>::instances;
+	std::list<CanController<T>*> CanController<T>::pInstances;
 
 	template<typename T>
 	CanController<T>::CanController(RM0008::CanManager& can_manager, Parameters& params, uint32_t offset_from_bid): can_manager(can_manager), params(params), offset_from_bid(offset_from_bid){
-		CanController<T>::instances.push_back(*this);
+		CanController<T>::pInstances.push_back(this);
 	}
 
 	template<typename T>
@@ -84,16 +83,8 @@ namespace stepping_md {
 			RM0008::RxFrame rx_frame;
 			can_manager.letterbox0.receive(rx_frame);
 			rx_frames.push_back(rx_frame);
-			blink_can_led();
+			led_mgr::blink_can_led();
 		}
-		//fifo1は使用しない設定(wrapper.cppのConfigFilterArg型の変数の宣言部を参照)
-		/*
-		if(!can_manager.letterbox1.empty()){
-			RM0008::RxFrame rx_frame;
-			can_manager.letterbox1.receive(rx_frame);
-			rx_frames.push_back(rx_frame);
-		}
-		*/
 
 		auto ite = rx_frames.begin();
 		while(ite != rx_frames.end()){
@@ -137,8 +128,8 @@ namespace stepping_md {
 
 	template<typename T>
 	void CanController<T>::trigger_update(){
-		for(CanController<T> controller : instances){
-			controller.update();
+		for(CanController<T>* pController : pInstances){
+			pController->update();
 		}
 	}
 }

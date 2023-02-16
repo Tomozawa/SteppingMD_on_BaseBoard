@@ -12,7 +12,7 @@ namespace stepping_md {
 	class CanController{
 		private:
 			static std::vector<CRSLib::Can::RM0008::RxFrame> rx_frames;
-			static std::list<CanController<T>> instances;
+			static std::list<CanController<T>*> pInstances;
 
 			CRSLib::Can::RM0008::CanManager& can_manager;
 			std::function<int(T, uint32_t)> callback;

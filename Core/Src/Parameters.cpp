@@ -4,7 +4,7 @@
 #include<Parameters.hpp>
 
 namespace stepping_md{
-	std::list<Parameters> Parameters::instances;
+	std::list<Parameters*> Parameters::pInstances;
 
     //パラメータを取得する関数
 	//第1引数は結果を格納する構造体オブジェクトへのポインタ
@@ -33,8 +33,8 @@ namespace stepping_md{
     }
 
 	void Parameters::trigger_emergency_callback(void){
-		for(Parameters parameters : instances){
-			parameters.emergency_callback();
+		for(Parameters* pParameters : pInstances){
+			pParameters->emergency_callback();
 		}
 	}
 }

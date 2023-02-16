@@ -4,14 +4,14 @@
 
 namespace stepping_md
 {
-	std::list<MotorController> MotorController::instances;
+	std::list<MotorController*> MotorController::pInstances;
 
     void MotorController::update_position(){
         //現在の位置を更新する
         //開始時間から計算する
         int time_diff = HAL_GetTick() - start_time;//ms
         start_time = HAL_GetTick();
-        constexpr float rpm_to_rad_per_ms = 2 * std::numbers::pi / 60000;
+        constexpr float rpm_to_rad_per_ms = 2.0f * std::numbers::pi / 60000.0f;
         positon +=direction * time_diff * current_speed * rpm_to_rad_per_ms;
     }
 
@@ -63,14 +63,18 @@ namespace stepping_md
         const GPIO_Port dir_port,
         const float error_threshold,
         TIM_HandleTypeDef* pwm_tim,
-        Parameters& params
-    ) : ena_pin(ena_pin), ena_port(ena_port), dir_pin(dir_pin), dir_port(dir_port),error_threshold(error_threshold), pwm_tim(pwm_tim), params(params){
+        Parameters& params,
+		unsigned long source_clock
+    ) : ena_pin(ena_pin), ena_port(ena_port), dir_pin(dir_pin), dir_port(dir_port),error_threshold(error_threshold), pwm_tim(pwm_tim), params(params), source_clock(source_clock){
         //安全のために初期化時にはモーターを停止させる。ただし、ENAはHighにしておく
         
         enable();
 
         //適当な値を設定しておく
         pwm_tim->Instance->CCR1 =100;
+
+        //インスタンス登録(trigger_update, trigger_emergency用)
+        pInstances.push_back(this);
     }
 
     void MotorController::set_speed(float _speed){
@@ -81,7 +85,10 @@ namespace stepping_md
         stepping_md::MotorParam motor_param = params.get_motor_param();
 
         //pwmの周期を設定する
-        pwm_tim->Instance->ARR = (uint32_t)(HAL_RCC_GetPCLK1Freq()/pwm_tim->Instance->PSC/speed/motor_param.ppr);
+        const float rotate_per_second = _speed / 60.0f;
+        const uint32_t arr_val = (uint32_t)(source_clock/(pwm_tim->Instance->PSC + 1)/rotate_per_second/motor_param.ppr) - 1;
+        pwm_tim->Instance->ARR = arr_val;
+        pwm_tim->Instance->CCR1 = (uint32_t)(arr_val / 2.0f) - 1;
     }
 
     void MotorController::update(){
@@ -104,15 +111,19 @@ namespace stepping_md
         this->params = params;
     }
 
+    void MotorController::reset_position(void){
+    	positon = 0;
+    }
+
     void MotorController::trigger_emergency_callback(void){
-    	for(MotorController controller : instances){
-    		controller.emergency_callback();
+    	for(MotorController* pController : pInstances){
+    		pController->emergency_callback();
     	}
     }
 
     void MotorController::trigger_update(void){
-    	for(MotorController controller : instances){
-    		controller.update();
+    	for(MotorController* pController : pInstances){
+    		pController->update();
     	}
     }
 
