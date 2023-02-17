@@ -42,6 +42,8 @@ static bool error_request_flag = false;
 
 inline unsigned long get_general_tim_clock();
 inline unsigned long get_advanced_tim_clock();
+void common_cmd_callback(uint8_t, Parameters&);
+void common_target_callback(float, Parameters&, MotorController&);
 
 //メイン関数
 void wrapper_cpp(void){
@@ -142,49 +144,19 @@ void wrapper_cpp(void){
 	//cmdコールバック
 	cancontrollers[A].cmd.set_callback(
 			[&parameters](uint8_t value, uint32_t id)->int{
-				if(!IS_EMERGENCY()){
-					MotorParam current_param = parameters[A].get_motor_param();
-
-					const bool is_disabled_now = current_param.mode == MD_MODE::DISABLE || current_param.mode == MD_MODE::DEFAULT;
-					const bool is_disabled_to_be_set = static_cast<MD_MODE>(value) == MD_MODE::DISABLE || static_cast<MD_MODE>(value) == MD_MODE::DEFAULT;
-					if(is_disabled_now && (!is_disabled_to_be_set)) led_mgr::increase_enabled_motor();
-					else if((!is_disabled_now) && is_disabled_to_be_set) led_mgr::decrease_enabled_motor();
-
-					current_param.mode = static_cast<MD_MODE>(value);
-					parameters[A].set_motor_param(current_param);
-				}
+				common_cmd_callback(value, parameters[A]);
 				return 0;
 			}
 	);
 	cancontrollers[C].cmd.set_callback(
 			[&parameters](uint8_t value, uint32_t id)->int{
-				if(!IS_EMERGENCY()){
-					MotorParam current_param = parameters[C].get_motor_param();
-
-					const bool is_disabled_now = current_param.mode == MD_MODE::DISABLE || current_param.mode == MD_MODE::DEFAULT;
-					const bool is_disabled_to_be_set = static_cast<MD_MODE>(value) == MD_MODE::DISABLE || static_cast<MD_MODE>(value) == MD_MODE::DEFAULT;
-					if(is_disabled_now && (!is_disabled_to_be_set)) led_mgr::increase_enabled_motor();
-					else if((!is_disabled_now) && is_disabled_to_be_set) led_mgr::decrease_enabled_motor();
-
-					current_param.mode = static_cast<MD_MODE>(value);
-					parameters[C].set_motor_param(current_param);
-				}
+				common_cmd_callback(value, parameters[C]);
 				return 0;
 			}
 	);
 	cancontrollers[E].cmd.set_callback(
 			[&parameters](uint8_t value, uint32_t id)->int{
-				if(!IS_EMERGENCY()){
-					MotorParam current_param = parameters[E].get_motor_param();
-
-					const bool is_disabled_now = current_param.mode == MD_MODE::DISABLE || current_param.mode == MD_MODE::DEFAULT;
-					const bool is_disabled_to_be_set = static_cast<MD_MODE>(value) == MD_MODE::DISABLE || static_cast<MD_MODE>(value) == MD_MODE::DEFAULT;
-					if(is_disabled_now && (!is_disabled_to_be_set)) led_mgr::increase_enabled_motor();
-					else if((!is_disabled_now) && is_disabled_to_be_set) led_mgr::decrease_enabled_motor();
-
-					current_param.mode = static_cast<MD_MODE>(value);
-					parameters[E].set_motor_param(current_param);
-				}
+				common_cmd_callback(value, parameters[E]);
 				return 0;
 			}
 	);
@@ -192,37 +164,19 @@ void wrapper_cpp(void){
 	//targetコールバック
 	cancontrollers[A].target.set_callback(
 			[&parameters, &motors](float value, uint32_t id)->int{
-				const bool is_disabled = parameters[A].get_motor_param().mode == MD_MODE::DEFAULT || parameters[A].get_motor_param().mode == MD_MODE::DISABLE;
-				if((!IS_EMERGENCY()) && (!is_disabled)){
-					MotorParam current_param = parameters[A].get_motor_param();
-					current_param.target = value;
-					parameters[A].set_motor_param(current_param);
-					if(current_param.mode == MD_MODE::POS) motors[A].reset_position();
-				}
+				common_target_callback(value, parameters[A], motors[A]);
 				return 0;
 			}
 	);
 	cancontrollers[C].target.set_callback(
 			[&parameters, &motors](float value, uint32_t id)->int{
-				const bool is_disabled = parameters[C].get_motor_param().mode == MD_MODE::DEFAULT || parameters[C].get_motor_param().mode == MD_MODE::DISABLE;
-				if((!IS_EMERGENCY()) && (!is_disabled)){
-					MotorParam current_param = parameters[C].get_motor_param();
-					current_param.target = value;
-					parameters[C].set_motor_param(current_param);
-					if(current_param.mode == MD_MODE::POS) motors[C].reset_position();
-				}
+				common_target_callback(value, parameters[C], motors[C]);
 				return 0;
 			}
 	);
 	cancontrollers[E].target.set_callback(
 			[&parameters, &motors](float value, uint32_t id)->int{
-				const bool is_disabled = parameters[E].get_motor_param().mode == MD_MODE::DEFAULT || parameters[E].get_motor_param().mode == MD_MODE::DISABLE;
-				if((!IS_EMERGENCY()) && (!is_disabled)){
-					MotorParam current_param = parameters[E].get_motor_param();
-					current_param.target = value;
-					parameters[E].set_motor_param(current_param);
-					if(current_param.mode == MD_MODE::POS) motors[E].reset_position();
-				}
+				common_target_callback(value, parameters[E], motors[E]);
 				return 0;
 			}
 	);
@@ -242,6 +196,31 @@ void wrapper_cpp(void){
 		CanController<float>::trigger_update();
 		MotorController::trigger_update();
 		led_mgr::led_process();
+	}
+}
+
+void common_cmd_callback(uint8_t value, Parameters& param){
+	const bool is_appropriate_val = value == 0 || value == 1 || value == 4;
+	if(!IS_EMERGENCY() && is_appropriate_val){
+		MotorParam current_param = param.get_motor_param();
+
+		const bool is_disabled_now = current_param.mode == MD_MODE::DISABLE || current_param.mode == MD_MODE::DEFAULT;
+		const bool is_disabled_to_be_set = static_cast<MD_MODE>(value) == MD_MODE::DISABLE || static_cast<MD_MODE>(value) == MD_MODE::DEFAULT;
+		if(is_disabled_now && (!is_disabled_to_be_set)) led_mgr::increase_enabled_motor();
+		else if((!is_disabled_now) && is_disabled_to_be_set) led_mgr::decrease_enabled_motor();
+
+		current_param.mode = static_cast<MD_MODE>(value);
+		param.set_motor_param(current_param);
+	}
+}
+
+void common_target_callback(float value, Parameters& param, MotorController& motor){
+	MotorParam current_param = param.get_motor_param();
+	const bool is_disabled = current_param.mode == MD_MODE::DEFAULT || current_param.mode == MD_MODE::DISABLE;
+	if((!IS_EMERGENCY()) && (!is_disabled)){
+		current_param.target = value;
+		param.set_motor_param(current_param);
+		if(current_param.mode == MD_MODE::POS) motor.reset_position();
 	}
 }
 
