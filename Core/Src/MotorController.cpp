@@ -73,7 +73,7 @@ namespace stepping_md
         //適当な値を設定しておく
         pwm_tim->Instance->CCR1 =100;
 
-        //インスタンス登録(trigger_update, trigger_emergency用)
+        //インスタンス登録(trigger_update, trigger_emergency, trigger_recovery用)
         pInstances.push_back(this);
     }
 
@@ -124,6 +124,12 @@ namespace stepping_md
     void MotorController::trigger_update(void){
     	for(MotorController* pController : pInstances){
     		pController->update();
+    	}
+    }
+
+    void MotorController::trigger_recovery_callback(void){
+    	for(MotorController* pController : pInstances){
+    		pController->recovery_callback();
     	}
     }
 

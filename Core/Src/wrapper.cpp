@@ -13,8 +13,15 @@ extern "C"{
 	extern TIM_HandleTypeDef htim3;
 }
 
-//#define IS_EMERGENCY() (HAL_GPIO_ReadPin(EMS_GPIO_Port, EMS_Pin) == GPIO_PIN_RESET)
-#define IS_EMERGENCY() (false)
+#define IS_EMERGENCY() (HAL_GPIO_ReadPin(EMS_GPIO_Port, EMS_Pin) == GPIO_PIN_RESET)
+
+//EMSBoard ver 1.0ではMotorEが利用できない
+#define EMSBoard_1_0
+#ifdef EMSBoard_1_0
+	#define MOTOR_NUM 2
+#else
+	#define MOTOR_NUM 3
+#endif
 
 using namespace stepping_md;
 using namespace CRSLib::Can::RM0008::FilterManager;
@@ -28,7 +35,10 @@ using FrameFeature = CRSLib::Can::FrameFeature<width>;
 
 constexpr int A = 0;
 constexpr int C = 1;
+
+#if !defined EMSBoard_1_0
 constexpr int E = 2;
+#endif
 
 struct CanControllersEntry final{
 	CanController<uint8_t> cmd;
@@ -39,28 +49,33 @@ struct CanControllersEntry final{
 };
 
 static bool error_request_flag = false;
+static bool recovery_request_flag = false;
 
-inline unsigned long get_general_tim_clock();
-inline unsigned long get_advanced_tim_clock();
-void common_cmd_callback(uint8_t, Parameters&);
-void common_target_callback(float, Parameters&, MotorController&);
+static inline unsigned long get_general_tim_clock();
+static inline unsigned long get_advanced_tim_clock();
+static void common_cmd_callback(uint8_t, Parameters&);
+static void common_target_callback(float, Parameters&, MotorController&);
 
 //メイン関数
 void wrapper_cpp(void){
 	//各種ハンドラ定義
 	CRSLib::Can::RM0008::CanManager can_mgr(&hcan);
 	constexpr float error_threshold = 2.0f * std::numbers::pi / 72.0f; //5°の誤差
-	Parameters parameters[3];
+	Parameters parameters[MOTOR_NUM];
 	MotorController motors[] = {
 			MotorController(ENAA_Pin, ENAA_GPIO_Port, DIRA_Pin, DIRA_GPIO_Port, error_threshold, &htim1, parameters[A], get_advanced_tim_clock()),
 			MotorController(ENAC_Pin, ENAC_GPIO_Port, DIRC_Pin, DIRC_GPIO_Port, error_threshold, &htim2, parameters[C], get_general_tim_clock()),
+#if !defined EMSBoard_1_0
 			MotorController(ENAE_Pin, ENAE_GPIO_Port, DIRE_Pin, DIRE_GPIO_Port, error_threshold, &htim3, parameters[E], get_general_tim_clock())
+#endif
 	};
 
 	CanControllersEntry cancontrollers[] = {
 			CanControllersEntry{.cmd = CanController<uint8_t>(can_mgr, parameters[A], 0), .target = CanController<float>(can_mgr, parameters[A], 1)},
 			CanControllersEntry{.cmd = CanController<uint8_t>(can_mgr, parameters[C], 0), .target = CanController<float>(can_mgr, parameters[C], 1)},
+#if !defined EMSBoard_1_0
 			CanControllersEntry{.cmd = CanController<uint8_t>(can_mgr, parameters[E], 0), .target = CanController<float>(can_mgr, parameters[E], 1)}
+#endif
 	};
 
 	//パラメーター設定
@@ -71,7 +86,9 @@ void wrapper_cpp(void){
 	constexpr float rpm = 240;
 	parameters[A].set_BID(bida);
 	parameters[C].set_BID(bida + 4);
+#if !defined EMSBoard_1_0
 	parameters[E].set_BID(bida + 8);
+#endif
 
 	parameters[A].set_motor_param(
 			MotorParam{
@@ -87,6 +104,7 @@ void wrapper_cpp(void){
 				.target = 0
 			}
 	);
+#if !defined EMSBoard_1_0
 	parameters[E].set_motor_param(
 			MotorParam{
 				.mode = MD_MODE::DEFAULT,
@@ -94,11 +112,14 @@ void wrapper_cpp(void){
 				.target = 0
 			}
 	);
+#endif
 
 	//モーター設定
 	motors[A].set_speed(rpm);
 	motors[C].set_speed(rpm);
+#if !defined EMSBoard_1_0
 	motors[E].set_speed(rpm);
+#endif
 
 	//CAN初期化
 	dynamic_initialize();
@@ -126,6 +147,7 @@ void wrapper_cpp(void){
 		.filter_match_index = 0,
 		.activate = true
 	};
+#if !defined EMSBoard_1_0
 	ConfigFilterArg<FilterWidth::bit32, FilterMode::mask> filterE{
 		.filter = {
 			.masked32 = {
@@ -137,7 +159,12 @@ void wrapper_cpp(void){
 		.filter_match_index = 0,
 		.activate = true
 	};
+#endif
+#ifdef EMSBoard_1_0
+	config_filter_bank(filterA, filterC);
+#else
 	config_filter_bank(filterA, filterC, filterE);
+#endif
 
 	//CANコールバック設定
 
@@ -154,12 +181,14 @@ void wrapper_cpp(void){
 				return 0;
 			}
 	);
+#if !defined EMSBoard_1_0
 	cancontrollers[E].cmd.set_callback(
 			[&parameters](uint8_t value, uint32_t id)->int{
 				common_cmd_callback(value, parameters[E]);
 				return 0;
 			}
 	);
+#endif
 
 	//targetコールバック
 	cancontrollers[A].target.set_callback(
@@ -174,12 +203,14 @@ void wrapper_cpp(void){
 				return 0;
 			}
 	);
+#if !defined EMSBoard_1_0
 	cancontrollers[E].target.set_callback(
 			[&parameters, &motors](float value, uint32_t id)->int{
 				common_target_callback(value, parameters[E], motors[E]);
 				return 0;
 			}
 	);
+#endif
 
 	//CANスタート
 	HAL_CAN_Start(&hcan);
@@ -190,6 +221,10 @@ void wrapper_cpp(void){
 			Parameters::trigger_emergency_callback();
 			led_mgr::disable_all_motor();
 			error_request_flag = false;
+		}
+		if(recovery_request_flag){
+			MotorController::trigger_recovery_callback();
+			recovery_request_flag = false;
 		}
 
 		CanController<uint8_t>::trigger_update();
@@ -239,5 +274,8 @@ unsigned long get_advanced_tim_clock(){
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
-	if(GPIO_Pin == EMS_Pin) error_request_flag = true;
+	if(GPIO_Pin == EMS_Pin){
+		if(IS_EMERGENCY()) error_request_flag = true;
+		else recovery_request_flag = true;
+	}
 }

@@ -52,6 +52,12 @@ namespace stepping_md{
 		        disable();
 		    }
 
+		    //Emergencyスイッチが復帰したとき呼ばれるコールバック関数
+		    void recovery_callback(){
+		    	start();
+		    	enable();
+		    }
+
 		public:
 			//コンストラクタ(引数やオーバーロードは自由に決めてよい)
 			explicit MotorController(
@@ -78,5 +84,7 @@ namespace stepping_md{
 		    static void trigger_emergency_callback(void);
 
 		    static void trigger_update(void);
+
+		    static void trigger_recovery_callback(void);
 	};
 }

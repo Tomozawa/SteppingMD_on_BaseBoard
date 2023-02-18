@@ -12,5 +12,6 @@
 ../Core/Src/MotorController.cpp:114:10:void stepping_md::MotorController::reset_position()	0	static
 ../Core/Src/MotorController.cpp:118:10:static void stepping_md::MotorController::trigger_emergency_callback()	16	static
 ../Core/Src/MotorController.cpp:124:10:static void stepping_md::MotorController::trigger_update()	16	static
-../Core/Src/MotorController.cpp:130:1:cpp)	0	static
-../Core/Src/MotorController.cpp:130:1:cpp)	16	static
+../Core/Src/MotorController.cpp:130:10:static void stepping_md::MotorController::trigger_recovery_callback()	16	static
+../Core/Src/MotorController.cpp:136:1:cpp)	0	static
+../Core/Src/MotorController.cpp:136:1:cpp)	16	static

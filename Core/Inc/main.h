@@ -61,15 +61,13 @@ void wrapper_cpp(void);
 /* Private defines -----------------------------------------------------------*/
 #define LED_CAN_Pin GPIO_PIN_14
 #define LED_CAN_GPIO_Port GPIOC
-#define EMS_Pin GPIO_PIN_4
-#define EMS_GPIO_Port GPIOA
-#define EMS_EXTI_IRQn EXTI4_IRQn
 #define LED0_Pin GPIO_PIN_0
 #define LED0_GPIO_Port GPIOB
 #define LED1_Pin GPIO_PIN_1
 #define LED1_GPIO_Port GPIOB
-#define DIRE_Pin GPIO_PIN_10
-#define DIRE_GPIO_Port GPIOB
+#define EMS_Pin GPIO_PIN_10
+#define EMS_GPIO_Port GPIOB
+#define EMS_EXTI_IRQn EXTI15_10_IRQn
 #define ENAC_Pin GPIO_PIN_13
 #define ENAC_GPIO_Port GPIOB
 #define DIRC_Pin GPIO_PIN_14
@@ -78,8 +76,6 @@ void wrapper_cpp(void);
 #define ENAA_GPIO_Port GPIOA
 #define DIRA_Pin GPIO_PIN_12
 #define DIRA_GPIO_Port GPIOA
-#define ENAE_Pin GPIO_PIN_15
-#define ENAE_GPIO_Port GPIOA
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
