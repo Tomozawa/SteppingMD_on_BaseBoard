@@ -1,51 +1,34 @@
 //Can関係のクラス
-#include<CanController.hpp>
-#include<led_process.hpp>
 #include<algorithm>
-#include<CRSLib/Can/CommonAmongMPU/include/pack.hpp>
+#include<CanController.hpp>
+#include<CRSLib/Can/CommonAmongMPU/include/utility.hpp>
+#include<led_process.hpp>
 
-using namespace CRSLib::Can;
+using namespace CRSLib::Can::RM0008;
 
 namespace stepping_md {
-	/*明示的特殊化*/
-	//ackを使用しないので不要
-	//template class CanController<uint32_t>;
-	template class CanController<float>;
-	template class CanController<uint8_t>;
-	//文字列で通信しない
-	//template class CanController<std::string>;
+	std::vector<CRSLib::Can::RM0008::RxFrame> CanController::rx_frames;
 
-	//以下定義
-	template<typename T>
-	std::vector<CRSLib::Can::RM0008::RxFrame> CanController<T>::rx_frames;
+	std::list<CanController*> CanController::pInstances;
 
-	template<typename T>
-	std::list<CanController<T>*> CanController<T>::pInstances;
-
-	template<typename T>
-	CanController<T>::CanController(RM0008::CanManager& can_manager, Parameters& params, uint32_t offset_from_bid): can_manager(can_manager), params(params), offset_from_bid(offset_from_bid){
-		CanController<T>::pInstances.push_back(this);
+	CanController::CanController(CanManager& can_manager, Parameters& params, uint32_t offset_from_bid): can_manager(can_manager), params(params), offset_from_bid(offset_from_bid){
+		CanController::pInstances.push_back(this);
 	}
 
-	template<typename T>
-	void CanController<T>::set_callback(const std::function<int(T, uint32_t)> callback){
-		this->callback = callback;
-	}
-
-	template<typename T>
-	void CanController<T>::set_register(Parameters& params){
+	void CanController::set_register(Parameters& params){
 		this->params = params;
 	}
-
+//未使用
+/*
 	template<typename T>
-	void CanController<T>::send(const T value){
-		static_assert(sizeof(T) <= can_mtu); //can_mtuバイトの長さまで
-		DataField buf{0};
-		RM0008::TxFrame tx_frame;
+	void CanController::send<T>(const T value){
+		static_assert(sizeof(T) <= CRSLib::Can::can_mtu); //can_mtuバイトの長さまで
+		CRSLib::Can::DataField buf{0};
+		TxFrame tx_frame;
 
-		pack<std::endian::native, T>(buf, value);
+		CRSLib::Can::pack<std::endian::native, T>(buf, value);
 
-		tx_frame.header = RM0008::TxHeader{
+		tx_frame.header = TxHeader{
 			.dlc = sizeof(T)
 		};
 		tx_frame.data = buf;
@@ -54,6 +37,7 @@ namespace stepping_md {
 
 		can_manager.pillarbox.post(params.get_BID() + offset_from_bid, tx_frame);
 	}
+	*/
 	/*
 	 * 文字列で通信しない
 	template<>
@@ -77,10 +61,9 @@ namespace stepping_md {
 	}
 	*/
 
-	template<typename T>
-	void CanController<T>::update(void){
+	void CanController::update(void){
 		if(!can_manager.letterbox0.empty()){
-			RM0008::RxFrame rx_frame;
+			RxFrame rx_frame;
 			can_manager.letterbox0.receive(rx_frame);
 			rx_frames.push_back(rx_frame);
 			led_mgr::blink_can_led();
@@ -89,7 +72,11 @@ namespace stepping_md {
 		auto ite = rx_frames.begin();
 		while(ite != rx_frames.end()){
 			if(ite->header.get_id() == (params.get_BID() + offset_from_bid)){
-				callback(unpack<std::endian::native, T>(ite->data), ite->header.get_id());
+				alignas(8) unsigned char tmp[CRSLib::Can::can_mtu];
+				for(unsigned i = 0; i < ite->header.dlc; i++){
+					tmp[i] = ite->data[ite->header.dlc - (i + 1)];
+				}
+				callback(tmp, ite->header.get_id());
 				ite = rx_frames.erase(ite);
 				continue;
 			}
@@ -126,9 +113,8 @@ namespace stepping_md {
 	}
 	*/
 
-	template<typename T>
-	void CanController<T>::trigger_update(){
-		for(CanController<T>* pController : pInstances){
+	void CanController::trigger_update(void){
+		for(CanController* pController : pInstances){
 			pController->update();
 		}
 	}

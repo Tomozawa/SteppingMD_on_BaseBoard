@@ -35,26 +35,20 @@ using FrameFeature = CRSLib::Can::FrameFeature<width>;
 
 constexpr int A = 0;
 constexpr int C = 1;
+constexpr int cmd = 0;
+constexpr int target = 1;
 
 #if !defined EMSBoard_1_0
 constexpr int E = 2;
 #endif
-
-struct CanControllersEntry final{
-	CanController<uint8_t> cmd;
-	CanController<float> target;
-	//フラッシュ領域不足のため実装せず
-	//専用基板での実装
-	//CanController<uint32_t> ack;
-};
 
 static bool error_request_flag = false;
 static bool recovery_request_flag = false;
 
 static inline unsigned long get_general_tim_clock();
 static inline unsigned long get_advanced_tim_clock();
-static void common_cmd_callback(uint8_t, Parameters&);
-static void common_target_callback(float, Parameters&, MotorController&);
+static void common_cmd_callback(uint8_t, Parameters&, MotorController&);
+static void common_target_callback(float, Parameters&);
 
 //メイン関数
 void wrapper_cpp(void){
@@ -70,11 +64,11 @@ void wrapper_cpp(void){
 #endif
 	};
 
-	CanControllersEntry cancontrollers[] = {
-			CanControllersEntry{.cmd = CanController<uint8_t>(can_mgr, parameters[A], 0), .target = CanController<float>(can_mgr, parameters[A], 1)},
-			CanControllersEntry{.cmd = CanController<uint8_t>(can_mgr, parameters[C], 0), .target = CanController<float>(can_mgr, parameters[C], 1)},
+	CanController cancontrollers[][2] = {
+			{CanController(can_mgr, parameters[A], 0), CanController(can_mgr, parameters[A], 1)},
+			{CanController(can_mgr, parameters[C], 0), CanController(can_mgr, parameters[C], 1)},
 #if !defined EMSBoard_1_0
-			CanControllersEntry{.cmd = CanController<uint8_t>(can_mgr, parameters[E], 0), .target = CanController<float>(can_mgr, parameters[E], 1)}
+			{CanController(can_mgr, parameters[E], 0), CanController(can_mgr, parameters[E], 1)}
 #endif
 	};
 
@@ -83,7 +77,7 @@ void wrapper_cpp(void){
 	constexpr uint16_t bida = 0x300;
 	constexpr uint16_t two_bit_ignore_mask = ~0b11;
 	constexpr float ppr = 200;
-	constexpr float rpm = 240;
+	constexpr float rpm = 60;
 	parameters[A].set_BID(bida);
 	parameters[C].set_BID(bida + 4);
 #if !defined EMSBoard_1_0
@@ -169,44 +163,44 @@ void wrapper_cpp(void){
 	//CANコールバック設定
 
 	//cmdコールバック
-	cancontrollers[A].cmd.set_callback(
-			[&parameters](uint8_t value, uint32_t id)->int{
-				common_cmd_callback(value, parameters[A]);
+	cancontrollers[A][cmd].set_callback<uint8_t>(
+			[&parameters, &motors](uint8_t value, uint32_t id)->int{
+				common_cmd_callback(value, parameters[A], motors[A]);
 				return 0;
 			}
 	);
-	cancontrollers[C].cmd.set_callback(
-			[&parameters](uint8_t value, uint32_t id)->int{
-				common_cmd_callback(value, parameters[C]);
+	cancontrollers[C][cmd].set_callback<uint8_t>(
+			[&parameters, &motors](uint8_t value, uint32_t id)->int{
+				common_cmd_callback(value, parameters[C], motors[C]);
 				return 0;
 			}
 	);
 #if !defined EMSBoard_1_0
-	cancontrollers[E].cmd.set_callback(
-			[&parameters](uint8_t value, uint32_t id)->int{
-				common_cmd_callback(value, parameters[E]);
+	cancontrollers[E][cmd].set_callback<uint8_t>(
+			[&parameters, &motors](uint8_t value, uint32_t id)->int{
+				common_cmd_callback(value, parameters[E], motors[E]);
 				return 0;
 			}
 	);
 #endif
 
 	//targetコールバック
-	cancontrollers[A].target.set_callback(
-			[&parameters, &motors](float value, uint32_t id)->int{
-				common_target_callback(value, parameters[A], motors[A]);
+	cancontrollers[A][target].set_callback<float>(
+			[&parameters](float value, uint32_t id)->int{
+				common_target_callback(value, parameters[A]);
 				return 0;
 			}
 	);
-	cancontrollers[C].target.set_callback(
-			[&parameters, &motors](float value, uint32_t id)->int{
-				common_target_callback(value, parameters[C], motors[C]);
+	cancontrollers[C][target].set_callback<float>(
+			[&parameters](float value, uint32_t id)->int{
+				common_target_callback(value, parameters[C]);
 				return 0;
 			}
 	);
 #if !defined EMSBoard_1_0
-	cancontrollers[E].target.set_callback(
-			[&parameters, &motors](float value, uint32_t id)->int{
-				common_target_callback(value, parameters[E], motors[E]);
+	cancontrollers[E][target].set_callback<float>(
+			[&parameters](float value, uint32_t id)->int{
+				common_target_callback(value, parameters[E]);
 				return 0;
 			}
 	);
@@ -227,16 +221,16 @@ void wrapper_cpp(void){
 			recovery_request_flag = false;
 		}
 
-		CanController<uint8_t>::trigger_update();
-		CanController<float>::trigger_update();
+		CanController::trigger_update();
 		MotorController::trigger_update();
 		led_mgr::led_process();
 	}
 }
 
-void common_cmd_callback(uint8_t value, Parameters& param){
+void common_cmd_callback(uint8_t value, Parameters& param, MotorController& motor){
 	const bool is_appropriate_val = value == 0 || value == 1 || value == 4;
-	if(!IS_EMERGENCY() && is_appropriate_val){
+	const bool is_same_mode = static_cast<MD_MODE>(value) == param.get_motor_param().mode;
+	if(!IS_EMERGENCY() && is_appropriate_val && (!is_same_mode)){
 		MotorParam current_param = param.get_motor_param();
 
 		const bool is_disabled_now = current_param.mode == MD_MODE::DISABLE || current_param.mode == MD_MODE::DEFAULT;
@@ -245,17 +239,19 @@ void common_cmd_callback(uint8_t value, Parameters& param){
 		else if((!is_disabled_now) && is_disabled_to_be_set) led_mgr::decrease_enabled_motor();
 
 		current_param.mode = static_cast<MD_MODE>(value);
+		current_param.target = 0;
 		param.set_motor_param(current_param);
+
+		if(current_param.mode == MD_MODE::POS || is_disabled_to_be_set) motor.reset_position();
 	}
 }
 
-void common_target_callback(float value, Parameters& param, MotorController& motor){
+void common_target_callback(float value, Parameters& param){
 	MotorParam current_param = param.get_motor_param();
 	const bool is_disabled = current_param.mode == MD_MODE::DEFAULT || current_param.mode == MD_MODE::DISABLE;
 	if((!IS_EMERGENCY()) && (!is_disabled)){
 		current_param.target = value;
 		param.set_motor_param(current_param);
-		if(current_param.mode == MD_MODE::POS) motor.reset_position();
 	}
 }
 

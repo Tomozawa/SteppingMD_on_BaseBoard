@@ -34,8 +34,7 @@ Core/Src/CanController.o: ../Core/Src/CanController.cpp \
  ../Core/Inc/CRSLib/Can/RM0008/include/letterbox.hpp \
  ../Core/Inc/CRSLib/include/utility.hpp \
  ../Core/Inc/CRSLib/Can/RM0008/include/utility.hpp \
- ../Core/Inc/led_process.hpp \
- ../Core/Inc/CRSLib/Can/CommonAmongMPU/include/pack.hpp
+ ../Core/Inc/led_process.hpp
 ../Core/Inc/CanController.hpp:
 ../Core/Inc/main.h:
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h:
@@ -73,4 +72,3 @@ Core/Src/CanController.o: ../Core/Src/CanController.cpp \
 ../Core/Inc/CRSLib/include/utility.hpp:
 ../Core/Inc/CRSLib/Can/RM0008/include/utility.hpp:
 ../Core/Inc/led_process.hpp:
-../Core/Inc/CRSLib/Can/CommonAmongMPU/include/pack.hpp:

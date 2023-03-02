@@ -1,3 +1,5 @@
+#pragma once
+
 #include<main.h>
 
 namespace stepping_md::led_mgr{

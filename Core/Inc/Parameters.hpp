@@ -48,6 +48,7 @@ namespace stepping_md{
 			void emergency_callback(void)
 			{
 				SMParam.mode = MD_MODE::DEFAULT;
+				SMParam.target = 0;
 			}
 		public:
 			//コンストラクタ(引数やオーバーロードは自由に決めてよい)
