@@ -8,7 +8,7 @@
 
 namespace stepping_md{
 	//モータードライバのモードを表す列挙型
-	enum class MD_MODE{
+	enum class MD_MODE : uint8_t{
 		//起動直後やEmergencyスイッチが押されたときのモードです。
 		//モーターは一切動作しません
 		//ステッピングMDのENA信号はLOWになっています
@@ -16,8 +16,15 @@ namespace stepping_md{
 		DISABLE = 1,
 
 		//位置制御モード
-		POS = 4
+		POS = 4,
+
+		//速度制御モード
+		VEL = 5,
 	};
+
+	//DISABLEとDEFAULTを同一視
+	bool operator ==(MD_MODE, MD_MODE);
+	bool operator !=(MD_MODE, MD_MODE);
 
 	//モーター制御に用いるパラメーターをまとめて定義した構造体
 	struct MotorParam{
@@ -31,6 +38,9 @@ namespace stepping_md{
 
 		//TARGET
 		float target;
+
+		//POSモードの速度
+		float pos_vel;
 	};
 
 	//パラメーターの書き込み・読み込みを行うクラス

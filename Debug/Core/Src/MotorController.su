@@ -1,17 +1,16 @@
-../Core/Src/MotorController.cpp:9:10:void stepping_md::MotorController::update_position()	16	static
-../Core/Src/MotorController.cpp:19:10:void stepping_md::MotorController::set_direction(int)	16	static
-../Core/Src/MotorController.cpp:42:10:void stepping_md::MotorController::start()	8	static
-../Core/Src/MotorController.cpp:47:10:void stepping_md::MotorController::stop()	8	static
-../Core/Src/MotorController.cpp:32:10:void stepping_md::MotorController::enable()	8	static
-../Core/Src/MotorController.cpp:37:10:void stepping_md::MotorController::disable()	8	static
-../Core/Src/MotorController.cpp:52:10:void stepping_md::MotorController::move_to_target(float)	8	static
-../Core/Src/MotorController.cpp:59:5:stepping_md::MotorController::MotorController(GPIO_PIN, GPIO_Port, GPIO_PIN, GPIO_Port, float, TIM_HandleTypeDef*, stepping_md::Parameters&, long unsigned int)	16	static
-../Core/Src/MotorController.cpp:80:10:void stepping_md::MotorController::set_speed(float)	32	static
-../Core/Src/MotorController.cpp:94:10:void stepping_md::MotorController::update()	32	static
-../Core/Src/MotorController.cpp:110:10:void stepping_md::MotorController::set_register(const stepping_md::Parameters&)	8	static
-../Core/Src/MotorController.cpp:114:10:void stepping_md::MotorController::reset_position()	0	static
-../Core/Src/MotorController.cpp:118:10:static void stepping_md::MotorController::trigger_emergency_callback()	16	static
-../Core/Src/MotorController.cpp:124:10:static void stepping_md::MotorController::trigger_update()	16	static
-../Core/Src/MotorController.cpp:130:10:static void stepping_md::MotorController::trigger_recovery_callback()	16	static
-../Core/Src/MotorController.cpp:136:1:cpp)	0	static
-../Core/Src/MotorController.cpp:136:1:cpp)	16	static
+../Core/Inc/MotorController.hpp:70:11:virtual void stepping_md::MotorController::DisableModeContext::update()	0	static
+../Core/Inc/MotorController.hpp:75:11:virtual void stepping_md::MotorController::DisableModeContext::onExit()	0	static
+../Core/Inc/MotorController.hpp:76:14:virtual stepping_md::MD_MODE stepping_md::MotorController::DisableModeContext::description()	0	static
+../Core/Inc/MotorController.hpp:71:11:virtual void stepping_md::MotorController::DisableModeContext::onInit()	8	static
+../Core/Src/MotorController.cpp:9:5:stepping_md::MotorController::MotorController(GPIO_PIN, GPIO_Port, GPIO_PIN, GPIO_Port, float, TIM_HandleTypeDef*, stepping_md::Parameters&, long unsigned int)	40	static
+../Core/Src/MotorController.cpp:54:10:void stepping_md::MotorController::update()	48	static
+../Core/Src/MotorController.cpp:77:14:GPIO_PIN stepping_md::MotorController::get_ena_pin() const	0	static
+../Core/Src/MotorController.cpp:78:15:GPIO_TypeDef* stepping_md::MotorController::get_ena_port() const	0	static
+../Core/Src/MotorController.cpp:79:14:GPIO_PIN stepping_md::MotorController::get_dir_pin() const	0	static
+../Core/Src/MotorController.cpp:80:15:GPIO_TypeDef* stepping_md::MotorController::get_dir_port() const	0	static
+../Core/Src/MotorController.cpp:81:24:TIM_HandleTypeDef* stepping_md::MotorController::get_pwm_tim()	0	static
+../Core/Src/MotorController.cpp:82:17:stepping_md::Parameters& stepping_md::MotorController::get_params()	0	static
+../Core/Src/MotorController.cpp:83:19:long unsigned int stepping_md::MotorController::get_source_clock() const	0	static
+../Core/Src/MotorController.cpp:85:10:static void stepping_md::MotorController::trigger_update()	16	static
+../Core/Src/MotorController.cpp:90:1:cpp)	0	static
+../Core/Src/MotorController.cpp:90:1:cpp)	16	static

@@ -4,6 +4,15 @@
 #include<Parameters.hpp>
 
 namespace stepping_md{
+	bool operator ==(MD_MODE left_val, MD_MODE right_val){
+		const bool is_left_disabled = static_cast<uint8_t>(left_val) == static_cast<uint8_t>(MD_MODE::DEFAULT) || static_cast<uint8_t>(left_val) == static_cast<uint8_t>(MD_MODE::DISABLE);
+		const bool is_right_disabled = static_cast<uint8_t>(right_val) == static_cast<uint8_t>(MD_MODE::DEFAULT) || static_cast<uint8_t>(right_val) == static_cast<uint8_t>(MD_MODE::DISABLE);
+		return static_cast<uint8_t>(left_val) == static_cast<uint8_t>(right_val) || (is_left_disabled && is_right_disabled);
+	}
+	bool operator !=(MD_MODE left_val, MD_MODE right_val){
+		return !(left_val == right_val);
+	}
+
 	std::list<Parameters*> Parameters::pInstances;
 
     //パラメータを取得する関数

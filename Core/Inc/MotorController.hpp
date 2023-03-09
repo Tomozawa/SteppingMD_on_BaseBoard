@@ -5,8 +5,6 @@
 #include<list>
 #include<stdexcept>
 
-//各モーターにつき1つのインスタンスが与えられるため、クラスの実装としては単一のモーターを動かすことを考える
-
 //hoge_PinやGPIO_PIN_10といったマクロの型
 typedef uint16_t GPIO_PIN;
 
@@ -14,77 +12,105 @@ typedef uint16_t GPIO_PIN;
 typedef GPIO_TypeDef* GPIO_Port;
 
 namespace stepping_md{
-	//以下のクラスが要実装
 	class MotorController{
 		private:
+			class IContext{
+				public:
+					virtual void update(void) = 0;
+					virtual void onInit(void) = 0;
+					virtual void onExit(void) = 0;
+					virtual MD_MODE description(void) = 0;
+			};
+
+			class VelocityModeContext : public IContext{
+				private:
+					MotorController& parent;
+
+					void set_direction(float);
+					void enable(void);
+					void disable(void);
+					void move_at_vel(void);
+				public:
+					explicit VelocityModeContext(MotorController&);
+					void update(void) override;
+					void onInit(void) override;
+					void onExit(void) override;
+					MD_MODE description(void) override;
+			};
+
+			class PositionModeContext : public IContext{
+				private:
+					MotorController& parent;
+					uint32_t start_time = 0;//ms 速度変化があったときのタイムスタンプ
+					int direction = 1;//dir_pinがHIGHのとき1,LOWのとき-1
+					float current_speed = 0;//rpm
+					float position = 0;//radian
+					const float error_threshold;
+
+					void set_direction(float);
+					void enable(void);
+					void disable(void);
+					void start(void);
+					void stop(void);
+					void move_to_target(void);
+					void update_position(void);
+				public:
+					explicit PositionModeContext(MotorController&, const float error_threshold);
+					void update(void) override;
+					void onInit(void) override;
+					void onExit(void) override;
+					MD_MODE description(void) override;
+			};
+
+			class DisableModeContext : public IContext{
+				private:
+					MotorController& parent;
+				public:
+					explicit DisableModeContext(MotorController& parent): parent(parent){}
+					void update(void) override{}
+					void onInit(void) override{
+						HAL_TIM_PWM_Stop(parent.get_pwm_tim(), TIM_CHANNEL_1);
+						HAL_GPIO_WritePin(parent.get_ena_port(), parent.get_ena_pin(), GPIO_PIN_RESET);
+					}
+					void onExit(void) override{}
+					MD_MODE description(void) override{return MD_MODE::DISABLE;}
+			};
 			const GPIO_PIN ena_pin;
 			const GPIO_Port ena_port;
 			const GPIO_PIN dir_pin;
 			const GPIO_Port dir_port;
-			const float error_threshold;
 			TIM_HandleTypeDef* pwm_tim;
 			Parameters& params;
-			unsigned long source_clock;
-
-			uint32_t start_time = 0;//ms 速度変化があったときのタイムスタンプ
-			int direction = 1;//dir_pinがHIGHのとき1,LOWのとき-1
-			float speed = 0;//rpm 設定値
-			float current_speed = 0;//rpm
-			float positon = 0;//radian
+			const unsigned long source_clock;
+			VelocityModeContext vel_context;
+			PositionModeContext pos_context;
+			DisableModeContext dis_context;
+			IContext* pValied_context;
 
 			static std::list<MotorController*> pInstances;
 
-			void update_position();
-			void set_direction(int _direction);
-			void enable();
-			void disable();
-			void start();
-			void stop();
-			void move_to_target(float target);
-
-			//パラメーターの値を読み込み、それに従ってモーターに出力する関数
-			//定期的に呼ばれる
 			void update(void);
 
-			//Emergencyスイッチが扱われたとき呼ばれるコールバック関数
-		    void emergency_callback(){
-		        stop();
-		        disable();
-		    }
-
-		    //Emergencyスイッチが復帰したとき呼ばれるコールバック関数
-		    void recovery_callback(){
-		    	start();
-		    	enable();
-		    }
-
 		public:
-			//コンストラクタ(引数やオーバーロードは自由に決めてよい)
 			explicit MotorController(
-				const GPIO_PIN ena_pin,//ENAのピン番号
-				const GPIO_Port ena_port,//ENAのポート
-				const GPIO_PIN dir_pin,//DIRのピン番号
-				const GPIO_Port dir_port,//DIRのポート
-				const float error_threshold,//目標値と現在値の差がこの値以下になったらPWMを止める。単位はrad
-				TIM_HandleTypeDef* pwm_tim,//PWMを出力するタイマ(CH1から出力される)
-				Parameters& params,//パラメータを保持する保管庫的なクラス
-				unsigned long source_clock //タイマに供給されるクロック周波数
+					const GPIO_PIN ena_pin,
+					const GPIO_Port ena_port,
+					const GPIO_PIN dir_pin,
+					const GPIO_Port dir_port,
+					const float error_threshold,
+					TIM_HandleTypeDef* pwm_tim,
+					Parameters& params,
+					unsigned long source_clock
 			);
 
-			//パラメータを保持する保管庫的なクラスを登録する関数
-			void set_register(const Parameters& params);
+			GPIO_PIN get_ena_pin(void) const;
+			GPIO_Port get_ena_port(void) const;
+			GPIO_PIN get_dir_pin(void) const;
+			GPIO_Port get_dir_port(void) const;
+			TIM_HandleTypeDef* get_pwm_tim(void);
+			Parameters& get_params(void);
+			unsigned long get_source_clock(void) const;
 
-			//モーターの回転速度を設定する関数
-			//引数はrpm
-			void set_speed(float speed);
-
-			//現在位置を0にする
-			void reset_position(void);
-
-		    static void trigger_emergency_callback(void);
-
-		    static void trigger_update(void);
-
-		    static void trigger_recovery_callback(void);
+			static void trigger_update(void);
 	};
 }

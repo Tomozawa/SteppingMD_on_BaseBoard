@@ -43,7 +43,6 @@ constexpr int E = 2;
 #endif
 
 static bool error_request_flag = false;
-static bool recovery_request_flag = false;
 
 static inline unsigned long get_general_tim_clock();
 static inline unsigned long get_advanced_tim_clock();
@@ -77,7 +76,8 @@ void wrapper_cpp(void){
 	constexpr uint16_t bida = 0x300;
 	constexpr uint16_t two_bit_ignore_mask = ~0b11;
 	constexpr float ppr = 200;
-	constexpr float rpm = 60;
+	//位置制御なし
+	//constexpr float rpm = 60;
 	parameters[A].set_BID(bida);
 	parameters[C].set_BID(bida + 4);
 #if !defined EMSBoard_1_0
@@ -108,12 +108,15 @@ void wrapper_cpp(void){
 	);
 #endif
 
+	//位置制御モードなし
 	//モーター設定
+	/*
 	motors[A].set_speed(rpm);
 	motors[C].set_speed(rpm);
 #if !defined EMSBoard_1_0
 	motors[E].set_speed(rpm);
 #endif
+	*/
 
 	//CAN初期化
 	dynamic_initialize();
@@ -209,16 +212,13 @@ void wrapper_cpp(void){
 	//CANスタート
 	HAL_CAN_Start(&hcan);
 
+	if(IS_EMERGENCY()) error_request_flag = true;
+
 	while(true){
 		if(error_request_flag){
-			MotorController::trigger_emergency_callback();
 			Parameters::trigger_emergency_callback();
 			led_mgr::disable_all_motor();
 			error_request_flag = false;
-		}
-		if(recovery_request_flag){
-			MotorController::trigger_recovery_callback();
-			recovery_request_flag = false;
 		}
 
 		CanController::trigger_update();
@@ -228,28 +228,25 @@ void wrapper_cpp(void){
 }
 
 void common_cmd_callback(uint8_t value, Parameters& param, MotorController& motor){
-	const bool is_appropriate_val = value == 0 || value == 1 || value == 4;
+	const bool is_appropriate_val = value == 0 || value == 1 || value == 4 || value == 5;
 	const bool is_same_mode = static_cast<MD_MODE>(value) == param.get_motor_param().mode;
+
 	if(!IS_EMERGENCY() && is_appropriate_val && (!is_same_mode)){
 		MotorParam current_param = param.get_motor_param();
 
-		const bool is_disabled_now = current_param.mode == MD_MODE::DISABLE || current_param.mode == MD_MODE::DEFAULT;
-		const bool is_disabled_to_be_set = static_cast<MD_MODE>(value) == MD_MODE::DISABLE || static_cast<MD_MODE>(value) == MD_MODE::DEFAULT;
-		if(is_disabled_now && (!is_disabled_to_be_set)) led_mgr::increase_enabled_motor();
-		else if((!is_disabled_now) && is_disabled_to_be_set) led_mgr::decrease_enabled_motor();
+		if(current_param.mode == MD_MODE::DISABLE && static_cast<MD_MODE>(value) != MD_MODE::DISABLE) led_mgr::increase_enabled_motor();
+		else if(current_param.mode != MD_MODE::DISABLE && static_cast<MD_MODE>(value) == MD_MODE::DISABLE) led_mgr::decrease_enabled_motor();
 
 		current_param.mode = static_cast<MD_MODE>(value);
 		current_param.target = 0;
 		param.set_motor_param(current_param);
-
-		if(current_param.mode == MD_MODE::POS || is_disabled_to_be_set) motor.reset_position();
 	}
 }
 
 void common_target_callback(float value, Parameters& param){
 	MotorParam current_param = param.get_motor_param();
-	const bool is_disabled = current_param.mode == MD_MODE::DEFAULT || current_param.mode == MD_MODE::DISABLE;
-	if((!IS_EMERGENCY()) && (!is_disabled)){
+
+	if((!IS_EMERGENCY()) && current_param.mode != MD_MODE::DISABLE){
 		current_param.target = value;
 		param.set_motor_param(current_param);
 	}
@@ -272,6 +269,5 @@ unsigned long get_advanced_tim_clock(){
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 	if(GPIO_Pin == EMS_Pin){
 		if(IS_EMERGENCY()) error_request_flag = true;
-		else recovery_request_flag = true;
 	}
 }
