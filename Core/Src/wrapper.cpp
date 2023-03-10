@@ -55,6 +55,44 @@ void wrapper_cpp(void){
 	CRSLib::Can::RM0008::CanManager can_mgr(&hcan);
 	constexpr float error_threshold = 2.0f * std::numbers::pi / 72.0f; //5°の誤差
 	Parameters parameters[MOTOR_NUM];
+	//パラメーター設定
+	//ver1.0ではフラッシュから読みだす
+	constexpr uint16_t bida = 0x300;
+	constexpr uint16_t two_bit_ignore_mask = ~0b11;
+	constexpr float ppr = 200;
+	//位置制御なし
+	constexpr float rpm = 150;
+	parameters[A].set_BID(bida);
+	parameters[C].set_BID(bida + 4);
+	#if !defined EMSBoard_1_0
+		parameters[E].set_BID(bida + 8);
+	#endif
+	parameters[A].set_motor_param(
+			MotorParam{
+				.mode = MD_MODE::DEFAULT,
+				.ppr = ppr,
+				.target = 0,
+				.pos_vel = rpm / 60.0f * 2.0f * std::numbers::pi
+			}
+	);
+	parameters[C].set_motor_param(
+			MotorParam{
+				.mode = MD_MODE::DEFAULT,
+				.ppr = ppr,
+				.target = 0,
+				.pos_vel = rpm / 60.0f * 2.0f * std::numbers::pi
+			}
+	);
+#if !defined EMSBoard_1_0
+	parameters[E].set_motor_param(
+			MotorParam{
+				.mode = MD_MODE::DEFAULT,
+				.ppr = ppr,
+				.target = 0,
+				.pos_vel = rpm / 60.0f * 2.0f * std::numbers::pi
+			}
+	);
+#endif
 	MotorController motors[] = {
 			MotorController(ENAA_Pin, ENAA_GPIO_Port, DIRA_Pin, DIRA_GPIO_Port, error_threshold, &htim1, parameters[A], get_advanced_tim_clock()),
 			MotorController(ENAC_Pin, ENAC_GPIO_Port, DIRC_Pin, DIRC_GPIO_Port, error_threshold, &htim2, parameters[C], get_general_tim_clock()),
@@ -70,53 +108,6 @@ void wrapper_cpp(void){
 			{CanController(can_mgr, parameters[E], 0), CanController(can_mgr, parameters[E], 1)}
 #endif
 	};
-
-	//パラメーター設定
-	//ver1.0ではフラッシュから読みだす
-	constexpr uint16_t bida = 0x300;
-	constexpr uint16_t two_bit_ignore_mask = ~0b11;
-	constexpr float ppr = 200;
-	//位置制御なし
-	//constexpr float rpm = 60;
-	parameters[A].set_BID(bida);
-	parameters[C].set_BID(bida + 4);
-#if !defined EMSBoard_1_0
-	parameters[E].set_BID(bida + 8);
-#endif
-
-	parameters[A].set_motor_param(
-			MotorParam{
-				.mode = MD_MODE::DEFAULT,
-				.ppr = ppr,
-				.target = 0
-			}
-	);
-	parameters[C].set_motor_param(
-			MotorParam{
-				.mode = MD_MODE::DEFAULT,
-				.ppr = ppr,
-				.target = 0
-			}
-	);
-#if !defined EMSBoard_1_0
-	parameters[E].set_motor_param(
-			MotorParam{
-				.mode = MD_MODE::DEFAULT,
-				.ppr = ppr,
-				.target = 0
-			}
-	);
-#endif
-
-	//位置制御モードなし
-	//モーター設定
-	/*
-	motors[A].set_speed(rpm);
-	motors[C].set_speed(rpm);
-#if !defined EMSBoard_1_0
-	motors[E].set_speed(rpm);
-#endif
-	*/
 
 	//CAN初期化
 	dynamic_initialize();

@@ -3,7 +3,7 @@
 ../Core/Inc/MotorController.hpp:76:14:virtual stepping_md::MD_MODE stepping_md::MotorController::DisableModeContext::description()	0	static
 ../Core/Inc/MotorController.hpp:71:11:virtual void stepping_md::MotorController::DisableModeContext::onInit()	8	static
 ../Core/Src/MotorController.cpp:9:5:stepping_md::MotorController::MotorController(GPIO_PIN, GPIO_Port, GPIO_PIN, GPIO_Port, float, TIM_HandleTypeDef*, stepping_md::Parameters&, long unsigned int)	40	static
-../Core/Src/MotorController.cpp:54:10:void stepping_md::MotorController::update()	48	static
+../Core/Src/MotorController.cpp:53:10:void stepping_md::MotorController::update()	48	static
 ../Core/Src/MotorController.cpp:77:14:GPIO_PIN stepping_md::MotorController::get_ena_pin() const	0	static
 ../Core/Src/MotorController.cpp:78:15:GPIO_TypeDef* stepping_md::MotorController::get_ena_port() const	0	static
 ../Core/Src/MotorController.cpp:79:14:GPIO_PIN stepping_md::MotorController::get_dir_pin() const	0	static

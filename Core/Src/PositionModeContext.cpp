@@ -60,8 +60,17 @@ namespace stepping_md{
 		current_speed = 0;
 	}
 	void MotorController::PositionModeContext::move_to_target(void){
+		const MotorParam motor_param = parent.get_params().get_motor_param();
+
 		//方向を決める
-		set_direction(parent.get_params().get_motor_param().target - position);
+		set_direction(motor_param.target - position);
+		//速度を変える
+		const float rotate_per_second = current_speed / 2.0f / std::numbers::pi;
+		const uint16_t arr_val = (rotate_per_second != 0)? static_cast<uint16_t>(parent.get_source_clock() / (parent.get_pwm_tim()->Instance->PSC + 1) / motor_param.ppr / rotate_per_second - 1.0f) : 0;
+		const uint16_t ccr_val = (arr_val >= 2)? arr_val / 2 - 1 : 0;
+		__HAL_TIM_SET_AUTORELOAD(parent.get_pwm_tim(), arr_val);
+		__HAL_TIM_SET_COMPARE(parent.get_pwm_tim(), TIM_CHANNEL_1, ccr_val);
+
 		start();
 	}
 	void MotorController::PositionModeContext::update(void){
@@ -69,6 +78,7 @@ namespace stepping_md{
 		update_position();
 
 		stepping_md::MotorParam motor_param = parent.get_params().get_motor_param();
+
 		//目標位置に到達しているか確認する
 		if(abs(motor_param.target - position) < error_threshold){
 			//目標位置に到達している場合は停止する

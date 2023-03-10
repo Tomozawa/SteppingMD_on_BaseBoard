@@ -29,17 +29,16 @@ namespace stepping_md
 		dis_context(DisableModeContext(*this))
 	{
     	switch(params.get_motor_param().mode){
-    		case MD_MODE::DEFAULT:
-    		case MD_MODE::DISABLE:
-    			pValied_context = &dis_context;
-    			break;
-
     		case MD_MODE::POS:
     			pValied_context = &pos_context;
     			break;
 
     		case MD_MODE::VEL:
     			pValied_context = &vel_context;
+    			break;
+
+    		default:
+    			pValied_context = &dis_context;
     	}
 
         //適当な値を設定しておく
@@ -64,6 +63,7 @@ namespace stepping_md
     				break;
     			case MD_MODE::VEL:
     				pValied_context = &vel_context;
+    				break;
     			default:
     				pValied_context = &dis_context;
     		}
@@ -84,7 +84,7 @@ namespace stepping_md
 
     void MotorController::trigger_update(void){
     	for(MotorController* pController : pInstances){
-    		pController->pValied_context->update();
+    		pController->update();
     	}
     }
 } // namespace stapping_md
