@@ -10,7 +10,7 @@
 ### 機材
 - [ステッピングモータードライバ](https://www.amazon.co.jp/Quimat-TB6600-%E3%82%B9%E3%83%86%E3%83%83%E3%83%94%E3%83%B3%E3%82%B0-%E3%82%B3%E3%83%B3%E3%83%88%E3%83%AD%E3%83%BC%E3%83%A9%E3%83%BC-9V-40V/dp/B06XSBB45M)
 - [BaseBoard ver4.0](https://github.com/tk20e/Base-Board-ver4.0-hw.git)
-- [EMSBoard](https//github.com/Tomozawa/EMSBoard.git)
+- [EMSBoard](https://github.com/Tomozawa/EMSBoard.git)
 - ステッピングモータードライバ用ハーネス
 
 ### 接続
@@ -30,8 +30,11 @@
 
 上記の接続を行うケーブルを「ステッピングモータードライバ用ハーネス」と呼びます。
 
+#### 接続時の注意
+BluePillから出力されるデジタル信号は3.3Vです。したがってENA+、DIR+、PUL+に供給する電圧を3.3Vにしなければなりません。整流用ダイオード(順方向降下電圧が0.6V)を2つ直列に接続することをおすすめします。
+
 ### EMSBoard
-リポジトリのREADMEに従ってEMSBoardをBaseBoardに正しく接続してください。EMSBoardが使用できない場合、ソースコードを書き換えてEMS信号を受信しないよう設定してください。
+リポジトリのREADMEに従ってEMSBoardをBaseBoardに正しく接続してください。EMSBoardが使用できない場合、ソースコードを書き換えてEMS信号を受信しないよう設定してください。また、EMSBoard ver1.0使用下では、DIN-EFで使用するピンがEMS信号の入力として使われているため、MotorEが使用できません。この問題が解消されたEMSBoard ver1.1以降を使用する場合は、```wrapper.cpp```内の```#define EMSBoard_1_0```を削除してください。(```#define EMSBoard_1_0```はMotorEを無効化するマクロです)
 
 ## ソフトウェア要件
 ### CAN
@@ -62,6 +65,7 @@ modeの種類とそれぞれのmodeに対応するcmdの値およびtargetの意
 | ------- | ------- | ------- |
 | DEFAULT | 0または1 | 無効 |
 | POS | 4 | 目標位置(rad) |
+| VEL | 5 | 目標速度(rad/s) |
 
 ### パラメーター
 モーターを制御するためのパラメーターです。Paramters.hppで定義されています。
@@ -69,6 +73,9 @@ modeの種類とそれぞれのmodeに対応するcmdの値およびtargetの意
 | パラメーター | データ型 | 説明 |
 | ------- | ------- | ------- |
 | PPR | uint8_t | ステッピングモーターが一回転するのに必要なパルス数 |
+| MODE | MD_MODE(uint8_t) | 現在のモード |
+| TARGET | float | 現在の目標値 |
+| POS_VEL | float | 位置制御モードでの速度 |
 
 ### EMS信号の無効化(非推奨)
 ```wrapper.cpp```のマクロ関数```IS_EMERGENCY()```の定義を```(HAL_GPIO_ReadPin(EMS_GPIO_Port, EMS_Pin) == GPIO_Pin_RESET)```から```(false)```に変えてください。
