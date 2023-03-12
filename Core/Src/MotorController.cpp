@@ -53,7 +53,7 @@ namespace stepping_md
     void MotorController::update(){
     	const MotorParam motor_param = params.get_motor_param();
     	const MD_MODE current_mode = pValied_context->description();
-    	const bool mode_change_detected = params.get_motor_param().mode != current_mode;
+    	const bool mode_change_detected = motor_param.mode != current_mode;
     	if(mode_change_detected){
     		pValied_context->onExit();
 

@@ -11,8 +11,7 @@ namespace stepping_md{
 		//開始時間から計算する
 		int time_diff = HAL_GetTick() - start_time;//ms
 		start_time = HAL_GetTick();
-		constexpr float rpm_to_rad_per_ms = 2.0f * std::numbers::pi / 60000.0f;
-		position +=direction * time_diff * current_speed * rpm_to_rad_per_ms;
+		position +=direction * time_diff * current_speed / 1000;
 	}
 
 	//方向を設定する。引数が正のとき正転、負のとき逆転
