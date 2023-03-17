@@ -6,6 +6,10 @@
 
 using namespace CRSLib::Can::RM0008;
 
+extern "C"{
+	extern CAN_HandleTypeDef hcan;
+}
+
 namespace stepping_md {
 	std::vector<CRSLib::Can::RM0008::RxFrame> CanController::rx_frames;
 
@@ -82,7 +86,7 @@ namespace stepping_md {
 			}
 			ite++;
 		}
-	}
+3	}
 
 	/*
 	 * 文字列で通信しない(コンパイルエラー残したまま)

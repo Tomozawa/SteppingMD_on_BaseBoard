@@ -1,9 +1,9 @@
-../Core/Src/VelocityModeContext.cpp:52:10:virtual stepping_md::MD_MODE stepping_md::MotorController::VelocityModeContext::description()	0	static
-../Core/Src/VelocityModeContext.cpp:44:7:virtual void stepping_md::MotorController::VelocityModeContext::onInit()	16	static
-../Core/Src/VelocityModeContext.cpp:48:7:virtual void stepping_md::MotorController::VelocityModeContext::onExit()	16	static
-../Core/Src/VelocityModeContext.cpp:5:2:stepping_md::MotorController::VelocityModeContext::VelocityModeContext(stepping_md::MotorController&)	8	static
 ../Core/Src/VelocityModeContext.cpp:8:7:void stepping_md::MotorController::VelocityModeContext::set_direction(float)	16	static
 ../Core/Src/VelocityModeContext.cpp:15:7:void stepping_md::MotorController::VelocityModeContext::enable()	16	static
 ../Core/Src/VelocityModeContext.cpp:22:7:void stepping_md::MotorController::VelocityModeContext::disable()	16	static
 ../Core/Src/VelocityModeContext.cpp:29:7:void stepping_md::MotorController::VelocityModeContext::move_at_vel()	40	static
-../Core/Src/VelocityModeContext.cpp:40:7:virtual void stepping_md::MotorController::VelocityModeContext::update()	24	static
+../Core/Src/VelocityModeContext.cpp:40:7:void stepping_md::MotorController::VelocityModeContext::update()	24	static
+../Core/Src/VelocityModeContext.cpp:44:7:void stepping_md::MotorController::VelocityModeContext::onInit()	16	static
+../Core/Src/VelocityModeContext.cpp:5:2:stepping_md::MotorController::VelocityModeContext::VelocityModeContext(stepping_md::MotorController&)	8	static
+../Core/Src/VelocityModeContext.cpp:48:7:void stepping_md::MotorController::VelocityModeContext::onExit()	16	static
+../Core/Src/VelocityModeContext.cpp:52:10:stepping_md::MD_MODE stepping_md::MotorController::VelocityModeContext::description()	0	static

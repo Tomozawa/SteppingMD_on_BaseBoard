@@ -1,6 +1,8 @@
 #include<MotorController.hpp>
 #include<numbers>
 
+volatile float current_target = 0;
+
 namespace stepping_md{
 	MotorController::PositionModeContext::PositionModeContext(MotorController& parent, const float error_threshold): parent(parent), error_threshold(error_threshold){
 		onInit();
@@ -61,6 +63,8 @@ namespace stepping_md{
 	void MotorController::PositionModeContext::move_to_target(void){
 		const MotorParam motor_param = parent.get_params().get_motor_param();
 
+		update_position();
+
 		//方向を決める
 		set_direction(motor_param.target - position);
 		//速度を変える
@@ -76,10 +80,12 @@ namespace stepping_md{
 		//現在の位置を更新する
 		update_position();
 
+		current_target = parent.get_params().get_motor_param().target;
+
 		stepping_md::MotorParam motor_param = parent.get_params().get_motor_param();
 
 		//目標位置に到達しているか確認する
-		if(abs(motor_param.target - position) < error_threshold){
+		if(std::abs(motor_param.target - position) < error_threshold){
 			//目標位置に到達している場合は停止する
 			stop();
 		}

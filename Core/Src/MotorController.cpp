@@ -2,6 +2,9 @@
 #include <MotorController.hpp>
 #include <numbers>
 
+volatile stepping_md::MD_MODE param_mode;
+volatile stepping_md::MD_MODE context_mode;
+
 namespace stepping_md
 {
 	std::list<MotorController*> MotorController::pInstances;
@@ -30,21 +33,22 @@ namespace stepping_md
 	{
     	switch(params.get_motor_param().mode){
     		case MD_MODE::POS:
-    			pValied_context = &pos_context;
+    			current_mode = pos_context.description();
+    			pos_context.onInit();
     			break;
 
     		case MD_MODE::VEL:
-    			pValied_context = &vel_context;
+    			current_mode = vel_context.description();
+    			vel_context.onInit();
     			break;
 
     		default:
-    			pValied_context = &dis_context;
+    			current_mode = dis_context.description();
+    			dis_context.onInit();
     	}
 
         //適当な値を設定しておく
         pwm_tim->Instance->CCR1 =100;
-
-        pValied_context->onInit();
 
         //インスタンス登録(trigger_update, trigger_emergency, trigger_recovery用)
         pInstances.push_back(this);
@@ -52,26 +56,44 @@ namespace stepping_md
 
     void MotorController::update(){
     	const MotorParam motor_param = params.get_motor_param();
-    	const MD_MODE current_mode = pValied_context->description();
     	const bool mode_change_detected = motor_param.mode != current_mode;
     	if(mode_change_detected){
-    		pValied_context->onExit();
+			switch(current_mode){
+				case MD_MODE::POS:
+					pos_context.onExit();
+					break;
+				case MD_MODE::VEL:
+					vel_context.onExit();
+					break;
+				default:
+					dis_context.onExit();
+			}
 
     		switch(motor_param.mode){
     			case MD_MODE::POS:
-    				pValied_context = &pos_context;
+    				current_mode = pos_context.description();
+    				pos_context.onInit();
     				break;
     			case MD_MODE::VEL:
-    				pValied_context = &vel_context;
+    				current_mode = vel_context.description();
+    				vel_context.onInit();
     				break;
     			default:
-    				pValied_context = &dis_context;
+    				current_mode = dis_context.description();
+    				dis_context.onInit();
     		}
-
-    		pValied_context->onInit();
     	}
 
-    	pValied_context->update();
+    	switch(current_mode){
+			case MD_MODE::POS:
+				pos_context.update();
+				break;
+			case MD_MODE::VEL:
+				vel_context.update();
+				break;
+			default:
+				dis_context.update();
+		}
     }
 
     GPIO_PIN MotorController::get_ena_pin(void) const{return ena_pin;}

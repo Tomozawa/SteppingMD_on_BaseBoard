@@ -14,15 +14,7 @@ typedef GPIO_TypeDef* GPIO_Port;
 namespace stepping_md{
 	class MotorController{
 		private:
-			class IContext{
-				public:
-					virtual void update(void) = 0;
-					virtual void onInit(void) = 0;
-					virtual void onExit(void) = 0;
-					virtual MD_MODE description(void) = 0;
-			};
-
-			class VelocityModeContext : public IContext{
+			class VelocityModeContext{
 				private:
 					MotorController& parent;
 
@@ -32,13 +24,13 @@ namespace stepping_md{
 					void move_at_vel(void);
 				public:
 					explicit VelocityModeContext(MotorController&);
-					void update(void) override;
-					void onInit(void) override;
-					void onExit(void) override;
-					MD_MODE description(void) override;
+					void update(void);
+					void onInit(void);
+					void onExit(void);
+					MD_MODE description(void);
 			};
 
-			class PositionModeContext : public IContext{
+			class PositionModeContext{
 				private:
 					MotorController& parent;
 					uint32_t start_time = 0;//ms 速度変化があったときのタイムスタンプ
@@ -56,24 +48,24 @@ namespace stepping_md{
 					void update_position(void);
 				public:
 					explicit PositionModeContext(MotorController&, const float error_threshold);
-					void update(void) override;
-					void onInit(void) override;
-					void onExit(void) override;
-					MD_MODE description(void) override;
+					void update(void);
+					void onInit(void);
+					void onExit(void);
+					MD_MODE description(void);
 			};
 
-			class DisableModeContext : public IContext{
+			class DisableModeContext{
 				private:
 					MotorController& parent;
 				public:
 					explicit DisableModeContext(MotorController& parent): parent(parent){}
-					void update(void) override{}
-					void onInit(void) override{
+					void update(void){}
+					void onInit(void){
 						HAL_TIM_PWM_Stop(parent.get_pwm_tim(), TIM_CHANNEL_1);
 						HAL_GPIO_WritePin(parent.get_ena_port(), parent.get_ena_pin(), GPIO_PIN_RESET);
 					}
-					void onExit(void) override{}
-					MD_MODE description(void) override{return MD_MODE::DISABLE;}
+					void onExit(void){}
+					MD_MODE description(void){return MD_MODE::DISABLE;}
 			};
 			const GPIO_PIN ena_pin;
 			const GPIO_Port ena_port;
@@ -85,7 +77,7 @@ namespace stepping_md{
 			VelocityModeContext vel_context;
 			PositionModeContext pos_context;
 			DisableModeContext dis_context;
-			IContext* pValied_context;
+			MD_MODE current_mode;
 
 			static std::list<MotorController*> pInstances;
 
